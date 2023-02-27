@@ -1,0 +1,20 @@
+[flake8]
+max-line-length = 88
+exclude =
+    env,
+    .env,
+    __pycache__,
+    .venv,
+    venv,
+    .git,
+    .github,
+    *.ddl,
+    *.sqlite,
+    tasks,
+    sql_to_postgres,
+    etl,
+    fastapi_solution,
+    tests/functional/testdata/*
+select = C,E,F,W,B,B950
+extend-ignore = E203, E501, W503
+extend-immutable-calls = Depends, Query

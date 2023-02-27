@@ -1,0 +1,89 @@
+version: '3'
+services:
+
+  db:
+    image: postgres:13-alpine3.16
+    env_file:
+      - .env
+    volumes:
+      - ./dbdata:/var/lib/postgresql/data/dbdata
+    expose:
+      - "5432"
+
+  redis:
+    image: redis:7.0.5
+    container_name: redis
+    restart: always
+    expose:
+      - "6379"
+
+  admin:
+    build: admin
+    container_name: admin
+    restart: always
+    depends_on:
+      - db
+    volumes:
+      - ./admin:/opt/app
+      - ./static/:/opt/app/static/
+      - ./media/:/opt/app/media/
+    env_file:
+      - ./.env
+    entrypoint: uwsgi --strict --ini /opt/app/uwsgi/uwsgi.ini
+
+  elastic:
+    image: elasticsearch:8.5.2
+    container_name: elastic
+    restart: always
+    command: ["elasticsearch", "-Elogger.level=WARN"]
+    environment:
+      - xpack.security.enabled=false
+      - "discovery.type=single-node"
+      - "ES_JAVA_OPTS=-Xms750m -Xmx750m"
+    volumes:
+      - ./elastic_search_data:/var/lib/elasticsearch/data
+    expose:
+      - "9200"
+
+  fastapi:
+    build: fastapi-solution
+    container_name: fastapi
+    image: fastapi_image
+    restart: always
+    depends_on:
+      - elastic
+      - redis
+    volumes:
+      - ./fastapi-solution/src:/opt/app
+    env_file:
+      - ./.env
+    expose:
+      - "8000"
+
+  etl:
+      build: etl
+      container_name: etl
+      restart: always
+      depends_on:
+        - db
+        - elastic
+        - redis
+      volumes:
+        - ./etl/states:/opt/app/states
+      env_file:
+        - .env
+      expose:
+        - "8001"
+
+  nginx:
+    build: nginx
+    container_name: nginx
+    restart: always
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/site.conf:/etc/nginx/conf.d/site.conf
+      - ./nginx/data:/data/
+    depends_on:
+      - fastapi
+    ports:
+      - "80:80"

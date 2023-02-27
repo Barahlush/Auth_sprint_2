@@ -1,0 +1,13 @@
+{
+  "refresh_interval": "1s",
+  "analysis": {
+    "analyzer": {
+      "ru_en": {
+        "tokenizer": "standard",
+        "filter": [
+          "lowercase"
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,1 @@
+* * * * * cd /opt/app && flock -n cron-locker.lock python3 run_etl.py 2>&1
