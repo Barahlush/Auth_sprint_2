@@ -19,6 +19,7 @@ from src.core.controllers import (
     RegisterController,
 )
 from src.core.jwt import roles_required
+from src.core.social_auth import SocialAuth, SocialLogin
 from src.utils.template_utils import navbar_items
 
 views = Blueprint('views', __name__, url_prefix='/auth')
@@ -43,6 +44,8 @@ def add_route(
 
 
 add_route('/login', ['GET', 'POST'], 'login', LoginController)
+add_route('/login/<string:name>', ['GET', 'POST'], 'social_login', SocialLogin)
+add_route('/<string:social_name>', ['GET', 'POST'], 'social', SocialAuth)
 add_route('/register', ['GET', 'POST'], 'register', RegisterController)
 add_route(
     '/logout',

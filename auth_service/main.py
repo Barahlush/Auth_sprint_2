@@ -1,5 +1,9 @@
+from authlib.integrations.flask_client import OAuth
 from gevent import monkey
+
+from src.core.views import views
 from src.db.postgres import patch_psycopg2
+from src.social_services.oauth_services import create_oauth_services
 
 monkey.patch_all()
 patch_psycopg2()
@@ -26,7 +30,6 @@ from src.core.config import APP_CONFIG, APP_HOST, APP_PORT, POSTGRES_CONFIG
 from src.core.jwt import jwt
 from src.core.models import LoginEvent, Role, User, UserRoles
 from src.core.security import hash_password
-from src.core.views import views
 from src.db.datastore import datastore
 from src.db.postgres import db
 
@@ -34,6 +37,7 @@ from src.db.postgres import db
 app = Flask(__name__)
 app.config |= APP_CONFIG
 csrf = CSRFProtect(app)
+oauth = OAuth(app)
 
 admin = admin.Admin(
     app, name='Admin Panel', url='/auth/admin', template_mode='bootstrap3'
@@ -64,6 +68,8 @@ if __name__ == '__main__':
         app.register_blueprint(views)
         app.register_blueprint(not_auth)
         jwt.init_app(app)
+        oauth.init_app(app)
+        create_oauth_services(oauth)
 
         db.create_tables(
             [
