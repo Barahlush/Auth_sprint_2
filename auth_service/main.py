@@ -38,7 +38,6 @@ from src.db.postgres import db
 app = Flask(__name__)
 app.config |= APP_CONFIG
 csrf = CSRFProtect(app)
-swagger = Swagger(app, template_file='schema/swagger.json')
 
 
 @app.before_request
@@ -75,7 +74,7 @@ if __name__ == '__main__':
 
     # Setup app and db
     with app.app_context():
-        swagger.init_app(app)
+        swagger = Swagger(app, template_file='schema/swagger.json')
         db.init(**dict(POSTGRES_CONFIG))
         logger.info('Connected to database {}', POSTGRES_CONFIG.database)
         app.register_blueprint(views)
