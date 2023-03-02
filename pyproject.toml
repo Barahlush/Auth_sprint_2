@@ -52,6 +52,7 @@ pre-commit = "^3.1.1"
 pytest-asyncio = "^0.20.3"
 aiohttp = "^3.8.4"
 multidict = "^6.0.4"
+aiobreaker = "^1.2.0"
 
 [tool.poetry.group.dev.dependencies]
 blue = "*"

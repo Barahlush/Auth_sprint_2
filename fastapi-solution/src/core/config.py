@@ -23,6 +23,7 @@ class Settings(BaseSettings):
     person_body_params: list[str] = ['film_ids']
     base_dir: str = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     project_name: str = Field('movies', env='PROJECT_NAME')
+    auth_url: str = Field('127.0.0.1:5000', env='AUTH_URL')
 
     class Config:
         env_file = '../../../.env'
