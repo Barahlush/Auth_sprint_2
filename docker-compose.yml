@@ -1,35 +1,65 @@
 version: '3'
 services:
 
-  db:
+  auth_postgres:
+    container_name: auth_postgres
     image: postgres:13-alpine3.16
+    restart: always
     env_file:
-      - .env
+      - .env-auth
+      - .docker.env
     volumes:
-      - ./dbdata:/var/lib/postgresql/data/dbdata
+      - ./postgres_data:/var/lib/postgresql/data/
     expose:
       - "5432"
 
+  movies_postgres:
+    container_name: movies_postgres
+    image: postgres:13-alpine3.16
+    restart: always
+    env_file:
+      - .env-api
+    volumes:
+      - ./dbdata:/var/lib/postgresql/data/
+    ports:
+      - "5432:5432"
+
   redis:
-    image: redis:7.0.5
     container_name: redis
     restart: always
+    image: redis:7.0.8
+    volumes:
+      - ./redis_data:/data
     expose:
       - "6379"
+    command: redis-server --appendonly yes --save 60 1
 
-  admin:
-    build: admin
-    container_name: admin
+  auth_service:
+    build: auth_service
     restart: always
-    depends_on:
-      - db
+    container_name: auth_service
     volumes:
-      - ./admin:/opt/app
-      - ./static/:/opt/app/static/
-      - ./media/:/opt/app/media/
+      - ./auth_service:/opt/app
     env_file:
-      - ./.env
-    entrypoint: uwsgi --strict --ini /opt/app/uwsgi/uwsgi.ini
+      - .env-auth
+    ports: 
+      - "5000:5000"
+    depends_on:
+      - auth_postgres
+
+  # admin:
+  #   build: admin
+  #   container_name: admin
+  #   restart: always
+  #   depends_on:
+  #     - postgres
+  #   volumes:
+  #     - ./admin:/opt/app
+  #     - ./static/:/opt/app/static/
+  #     - ./media/:/opt/app/media/
+  #   env_file:
+  #     - ./.env
+  #   entrypoint: uwsgi --strict --ini /opt/app/uwsgi/uwsgi.ini
 
   elastic:
     image: elasticsearch:8.5.2
@@ -56,7 +86,7 @@ services:
     volumes:
       - ./fastapi-solution/src:/opt/app
     env_file:
-      - ./.env
+      - ./.env-api
     expose:
       - "8000"
 
@@ -65,23 +95,22 @@ services:
       container_name: etl
       restart: always
       depends_on:
-        - db
+        - movies_postgres
         - elastic
         - redis
       volumes:
         - ./etl/states:/opt/app/states
       env_file:
-        - .env
+        - .env-api
       expose:
         - "8001"
-
   nginx:
     build: nginx
     container_name: nginx
     restart: always
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf
-      - ./nginx/site.conf:/etc/nginx/conf.d/site.conf
+      - ./nginx/configs/site.conf:/etc/nginx/conf.d/site.conf
       - ./nginx/data:/data/
     depends_on:
       - fastapi

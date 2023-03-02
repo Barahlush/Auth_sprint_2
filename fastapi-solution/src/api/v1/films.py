@@ -1,4 +1,4 @@
-from typing import Sequence, Union
+from collections.abc import Sequence
 
 from fastapi import APIRouter, Depends, Query
 from models.films import Film, FilmFull
@@ -21,25 +21,30 @@ router = APIRouter()
     description='Get list of movies with search and filters',
 )
 async def film_list(
-    genre: Union[str, None] = Query(
+    genre: str
+    | None = Query(
         default=None, alias='filter[genre]', description='Filter by genre uuid'
     ),
-    writers: Union[str, None] = Query(
+    writers: str
+    | None = Query(
         default=None,
         alias='filter[writer]',
         description='Filter by writer (person) uuid',
     ),
-    actors: Union[str, None] = Query(
-        default=None, alias='filter[actor]', description='Filter by actor (person) uuid'
+    actors: str
+    | None = Query(
+        default=None,
+        alias='filter[actor]',
+        description='Filter by actor (person) uuid',
     ),
-    directors: Union[str, None] = Query(
+    directors: str
+    | None = Query(
         default=None,
         alias='filter[director]',
         description='Filter by director (person) uuid',
     ),
-    query: Union[str, None] = Query(
-        default=None, description='Text for search by title'
-    ),
+    query: str
+    | None = Query(default=None, description='Text for search by title'),
     common: CommonQueryParams = Depends(CommonQueryParams),
     film_service: BaseService = Depends(get_film_service),
 ) -> Sequence[Film]:

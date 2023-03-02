@@ -1,6 +1,10 @@
-from typing import Any, Generator, TypeVar
+from collections.abc import Generator
+from typing import Any, TypeVar
 
 from config import REDIS_HOST, REDIS_PORT
+from psycopg2.extras import DictRow
+from redis import Redis
+
 from etl_utils.elastic_search_handlers import (
     ElasticSearchFilmTransformer,
     ElasticSearchGenreTransformer,
@@ -16,8 +20,6 @@ from etl_utils.postgres_handlers import (
     PostgresProducer,
 )
 from etl_utils.state import RedisStorage, State
-from psycopg2.extras import DictRow
-from redis import Redis
 
 ElasticSearchTransformer = TypeVar(
     'ElasticSearchTransformer',
@@ -48,7 +50,9 @@ class BasePipeline:
             loader_batch_size (int, optional):
                 batch size for object uploading to ElasticSearch. Defaults to 128.
         """
-        self.state = State(RedisStorage(Redis(REDIS_HOST, REDIS_PORT), redis_key))
+        self.state = State(
+            RedisStorage(Redis(REDIS_HOST, REDIS_PORT), redis_key)
+        )
         self._es_transformer: ElasticSearchTransformer = None  # type: ignore
         self._es_loader: ElasticSearchLoader | None = None
         self._producer: PostgresProducer | None = None
@@ -113,7 +117,9 @@ class BasePipeline:
         for producer_data_batch in producer_data_generator:
             yield from self.es_transformer.transform(producer_data_batch)
 
-    def load(self, prepared_data: Generator[dict[str, Any], None, None]) -> None:
+    def load(
+        self, prepared_data: Generator[dict[str, Any], None, None]
+    ) -> None:
         """Loads transformed data to ElasticSearch.
 
         Args:

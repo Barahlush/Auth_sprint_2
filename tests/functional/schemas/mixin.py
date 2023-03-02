@@ -1,4 +1,3 @@
-from typing import Optional
 from uuid import UUID
 
 from pydantic import BaseModel
@@ -12,6 +11,6 @@ class PaginationValidation(BaseModel):
     total: int
     page: int
     page_size: int
-    next_page: Optional[int] = None
-    previous_page: Optional[int] = None
+    next_page: int | None = None
+    previous_page: int | None = None
     available_pages: int

@@ -1,7 +1,11 @@
 import time
 from pathlib import Path
 
-from etl_utils.pipelines import FilmETLPipeline, GenreETLPipeline, PersonETLPipeline
+from etl_utils.pipelines import (
+    FilmETLPipeline,
+    GenreETLPipeline,
+    PersonETLPipeline,
+)
 
 
 def main() -> None:
@@ -14,7 +18,9 @@ def main() -> None:
             redis_key='filmwork_etl', table_name='film_work'
         ),
         'filmwork_by_person_pipeline': FilmETLPipeline(
-            redis_key='filmwork_by_person_etl', table_name='person', enrich=True
+            redis_key='filmwork_by_person_etl',
+            table_name='person',
+            enrich=True,
         ),
         'filmwork_by_genre_pipeline': FilmETLPipeline(
             redis_key='filmwork_by_genre_etl', table_name='genre', enrich=True

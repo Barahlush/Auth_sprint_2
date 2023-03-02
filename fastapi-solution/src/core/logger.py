@@ -1,7 +1,9 @@
 import logging
 import sys
 
-LOG_FORMAT = '%(asctime)s - %(levelname)s - %(funcName)s: %(lineno)d ' '- %(message)s'
+LOG_FORMAT = (
+    '%(asctime)s - %(levelname)s - %(funcName)s: %(lineno)d ' '- %(message)s'
+)
 LOG_LEVEL = logging.INFO
 
 

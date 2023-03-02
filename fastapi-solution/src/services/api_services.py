@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+from collections.abc import Sequence
 from functools import lru_cache
-from typing import Any, Sequence, Type, cast
+from typing import Any, cast
 
 from core.logger import get_logger
 from db.elastic import get_elastic
@@ -10,6 +11,7 @@ from fastapi import Depends
 from models.films import Film, FilmFull
 from models.genres import Genre, GenreFull
 from models.persons import PersonFull
+
 from services.ancestors import AsyncCacheStorage, SearchService
 from services.elastic_service import ElasticService
 from services.redis_service import RedisService
@@ -22,8 +24,8 @@ class BaseService:
     def __init__(
         self,
         index: str,
-        model_type: Type[ModelType],
-        bulk_model_type: Type[BulkModelType],
+        model_type: type[ModelType],
+        bulk_model_type: type[BulkModelType],
         cache_service: AsyncCacheStorage,
         search_service: SearchService,
     ):
@@ -40,7 +42,9 @@ class BaseService:
             if isinstance(item, self.model_type):
                 return item
 
-        item = await self.search_service.get_one(item_id, self.index, self.model_type)
+        item = await self.search_service.get_one(
+            item_id, self.index, self.model_type
+        )
         await self.cache_service.put(redis_key, item)
         return cast(ModelType, item)
 
@@ -61,7 +65,7 @@ class BaseService:
         return cast(Sequence[BulkModelType], items)
 
 
-@lru_cache()
+@lru_cache
 def get_genre_service(  # type: ignore
     cache=Depends(get_redis),
     search=Depends(get_elastic),
@@ -69,10 +73,12 @@ def get_genre_service(  # type: ignore
     """GenreService provider."""
     cache_service = RedisService(cache)
     search_service = ElasticService(search)
-    return BaseService('genres', GenreFull, Genre, cache_service, search_service)
+    return BaseService(
+        'genres', GenreFull, Genre, cache_service, search_service
+    )
 
 
-@lru_cache()
+@lru_cache
 def get_film_service(  # type: ignore
     cache=Depends(get_redis),
     search=Depends(get_elastic),
@@ -83,7 +89,7 @@ def get_film_service(  # type: ignore
     return BaseService('movies', FilmFull, Film, cache_service, search_service)
 
 
-@lru_cache()
+@lru_cache
 def get_person_service(  # type: ignore
     cache=Depends(get_redis),
     search=Depends(get_elastic),
@@ -91,4 +97,6 @@ def get_person_service(  # type: ignore
     """PersonService provider."""
     cache_service = RedisService(cache)
     search_service = ElasticService(search)
-    return BaseService('persons', PersonFull, PersonFull, cache_service, search_service)
+    return BaseService(
+        'persons', PersonFull, PersonFull, cache_service, search_service
+    )

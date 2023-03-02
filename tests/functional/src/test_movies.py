@@ -9,7 +9,11 @@ from fixtures.elastic import FixtureTypeElasticDataWriter
 from fixtures.http import FixtureTypeGetRequestMaker
 from redis.asyncio import Redis
 from settings import settings
-from testdata.data_movies import expected_film_data, film_work_data, not_found_film_data
+from testdata.data_movies import (
+    expected_film_data,
+    film_work_data,
+    not_found_film_data,
+)
 from testdata.movies_params import film_list_params, film_search_params
 from utils.logger import get_logger
 from utils.test_utils import check_films_result, query_to_key_movies

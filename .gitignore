@@ -1,10 +1,28 @@
-# Byte-compiled / optimized / DLL files
-__pycache__/
-*.py[cod]
-*$py.class
 
-# C extensions
-*.so
+*~
+*.py[cod]
+*.{orig,rej,bak}
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# cache
+__pycache__
+.mypy_cache
+.pytest_cache
+.ruff_cache
 
 # Distribution / packaging
 .Python
@@ -26,30 +44,6 @@ share/python-wheels/
 .installed.cfg
 *.egg
 MANIFEST
-
-# PyInstaller
-#  Usually these files are written by a python script from a template
-#  before PyInstaller builds the exe, so as to inject date/other infos into it.
-*.manifest
-*.spec
-
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
-
-# Unit test / coverage reports
-htmlcov/
-.tox/
-.nox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-*.py,cover
-.hypothesis/
-.pytest_cache/
 
 # Translations
 *.mo
@@ -103,6 +97,8 @@ celerybeat.pid
 
 # Environments
 .env
+.env-api
+.env-auth
 .venv
 env/
 venv/
@@ -157,3 +153,20 @@ dev_*.ipynb
 
 sqlite_to_postgres/.env
 sqlite_to_postgres/venv
+.vscode
+instance/
+.webassets-cache
+.idea/
+
+# Docker
+.docker.env
+
+# PyCharm
+auth_service/requirements.txt
+tests/requirements.txt
+
+# DB files
+*.db
+postgres_data
+redis_data
+*test.json

@@ -4,11 +4,12 @@ import abc
 import json
 from datetime import date, datetime
 from pathlib import Path
-from typing import Any, Optional, Union
+from typing import Any
 
-from etl_utils.backoff import backoff_function
 from redis import Redis
 from redis.exceptions import ConnectionError
+
+from etl_utils.backoff import backoff_function
 
 
 class BaseStorage:
@@ -34,7 +35,7 @@ class State:
         self.state[key] = value
         self.storage.save_state(self.state)
 
-    def get_state(self, key: str) -> Optional[Any]:
+    def get_state(self, key: str) -> Any | None:
         return self.state.get(key)
 
 
@@ -49,7 +50,7 @@ def json_serializer(obj: Any) -> str:
 class JsonFileStorage(BaseStorage):
     """Local JSON file storage for states."""
 
-    def __init__(self, file_path: Optional[Union[Path, str]] = None):
+    def __init__(self, file_path: Path | str | None = None):
         self.file_path = (
             Path(file_path) if file_path else Path('storage.json').resolve()
         )
@@ -60,7 +61,11 @@ class JsonFileStorage(BaseStorage):
     def save_state(self, state: dict[str, Any]) -> None:
         with self.file_path.open('w') as state_file:
             json.dump(
-                state, state_file, indent=4, sort_keys=True, default=json_serializer
+                state,
+                state_file,
+                indent=4,
+                sort_keys=True,
+                default=json_serializer,
             )
 
     def retrieve_state(self) -> Any:
@@ -81,7 +86,9 @@ class RedisStorage(BaseStorage):
     def save_state(self, state: dict[str, Any]) -> None:
         self.redis_adapter.set(
             self.name,
-            json.dumps(state, indent=4, sort_keys=True, default=json_serializer),
+            json.dumps(
+                state, indent=4, sort_keys=True, default=json_serializer
+            ),
         )
 
     @backoff_function(ConnectionError)

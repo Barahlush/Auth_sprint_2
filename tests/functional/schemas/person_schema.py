@@ -1,4 +1,3 @@
-from typing import Optional
 from uuid import UUID
 
 from .mixin import UUIDValidation
@@ -9,4 +8,4 @@ class FilmPersonValidation(UUIDValidation):
 
 
 class DetailPersonValidation(FilmPersonValidation):
-    film_ids: Optional[list[UUID]] = []
+    film_ids: list[UUID] | None = []

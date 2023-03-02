@@ -1,6 +1,7 @@
+from collections.abc import Callable, Generator
 from functools import wraps
 from time import sleep
-from typing import Any, Callable, Generator, Type, TypeVar, cast
+from typing import Any, TypeVar, cast
 
 from etl_utils.loggers import setup_logger
 
@@ -8,7 +9,9 @@ logger = setup_logger(__name__)
 
 
 def exponential_backoff_timings(
-    start_sleeping_time: float = 0.1, factor: float = 2, border_sleep_time: float = 10
+    start_sleeping_time: float = 0.1,
+    factor: float = 2,
+    border_sleep_time: float = 10,
 ) -> Generator[float, None, None]:
 
     """Generates exponentially growing numbers up to `border_sleep_time` limit.
@@ -40,7 +43,10 @@ def exponential_backoff_timings(
 
 
 def backoff_log(
-    parent_class_name: str, func_name: str, sleep_time: float, exception: Exception
+    parent_class_name: str,
+    func_name: str,
+    sleep_time: float,
+    exception: Exception,
 ) -> None:
 
     """Logs exception message and sleeping time for backoff decorators.
@@ -59,7 +65,7 @@ def backoff_log(
         str: Message for logger to print.
     """
     logger.error(
-        '''%s.%s: Sleeping %g seconds.\nReason: %s\n''',
+        """%s.%s: Sleeping %g seconds.\nReason: %s\n""",
         parent_class_name,
         func_name,
         sleep_time,
@@ -71,7 +77,7 @@ F_type = TypeVar('F_type', bound=Callable[..., Any])
 
 
 def backoff_function(
-    *exceptions: Type[Exception],
+    *exceptions: type[Exception],
     start_sleeping_time: float = 0.1,
     factor: float = 2,
     border_sleep_time: float = 10,
@@ -111,6 +117,7 @@ def backoff_function(
                         exception=e,
                     )
                     sleep(t)
+            return None
 
         return cast(F_type, inner)
 
@@ -118,7 +125,7 @@ def backoff_function(
 
 
 def backoff_generator(
-    *exceptions: Type[Exception],
+    *exceptions: type[Exception],
     start_sleeping_time: float = 0.1,
     factor: float = 2,
     border_sleep_time: float = 10,

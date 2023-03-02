@@ -1,7 +1,13 @@
-from typing import Any, AsyncGenerator
+from collections.abc import AsyncGenerator
+from typing import Any
 
 from elasticsearch import AsyncElasticsearch
-from es_index import film_work_schema, genre_schema, person_schema, schema_template
+from es_index import (
+    film_work_schema,
+    genre_schema,
+    person_schema,
+    schema_template,
+)
 from utils.logger import get_logger
 
 logger = get_logger(__name__)

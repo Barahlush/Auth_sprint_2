@@ -1,4 +1,5 @@
-from typing import Any, AsyncGenerator, Protocol
+from collections.abc import AsyncGenerator
+from typing import Any, Protocol
 
 import aiohttp
 import pytest

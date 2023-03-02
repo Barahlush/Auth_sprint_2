@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Dict, Optional, TypeVar
+from typing import Any, TypeVar
 
 from core.logger import get_logger
 from fastapi import HTTPException, Query
@@ -63,14 +63,21 @@ def parse_params(
 class CommonQueryParams:
     def __init__(
         self,
-        sort: str | None = Query(default=None, description='Sort by current param'),
+        sort: str
+        | None = Query(default=None, description='Sort by current param'),
         size: int
         | None = Query(
-            default=None, alias='page[size]', description='Items per page', ge=0
+            default=None,
+            alias='page[size]',
+            description='Items per page',
+            ge=0,
         ),
         page_num: int
         | None = Query(
-            default=None, alias='page[number]', description='Number of page', ge=0
+            default=None,
+            alias='page[number]',
+            description='Number of page',
+            ge=0,
         ),
     ):
         self.sort = sort
@@ -83,6 +90,6 @@ class HTTPNotFoundException(HTTPException):
         self,
         status_code: int = HTTPStatus.NOT_FOUND,
         detail: Any = None,
-        headers: Optional[Dict[str, Any]] = None,
+        headers: dict[str, Any] | None = None,
     ) -> None:
         super().__init__(status_code, detail, headers)

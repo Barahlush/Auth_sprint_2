@@ -1,6 +1,6 @@
 import asyncio
+from collections.abc import Generator
 from glob import glob
-from typing import Generator
 
 import pytest
 from utils.logger import get_logger

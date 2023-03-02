@@ -1,7 +1,8 @@
 import asyncio
 import time
+from collections.abc import Callable, Generator
 from functools import wraps
-from typing import Any, Callable, Generator, Type, TypeVar, cast
+from typing import Any, TypeVar, cast
 
 from utils.logger import get_logger
 
@@ -72,7 +73,7 @@ F_type = TypeVar('F_type', bound=Callable[..., Any])
 
 
 def async_backoff_function(
-    *exceptions: Type[Exception],
+    *exceptions: type[Exception],
     start_sleeping_time: float = 0.1,
     factor: float = 2,
     border_sleep_time: float = 10,
@@ -112,6 +113,7 @@ def async_backoff_function(
                         exception=e,
                     )
                     await asyncio.sleep(t)
+            return None
 
         return cast(F_type, inner)
 
@@ -119,7 +121,7 @@ def async_backoff_function(
 
 
 def backoff_function(
-    *exceptions: Type[Exception],
+    *exceptions: type[Exception],
     start_sleeping_time: float = 1,
     factor: float = 2,
     border_sleep_time: float = 10,
@@ -159,6 +161,7 @@ def backoff_function(
                         exception=e,
                     )
                     time.sleep(t)
+            return None
 
         return cast(F_type, inner)
 

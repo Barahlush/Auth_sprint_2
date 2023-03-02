@@ -1,21 +1,26 @@
+from collections.abc import Generator
 from contextlib import closing
 from datetime import datetime
-from typing import Generator
 
 import psycopg2
-import psycopg2.sql as sql
 from config import POSTGRES_DSL
+from psycopg2 import sql
+from psycopg2.extras import DictCursor, DictRow
+
 from etl_utils.backoff import backoff_function, backoff_generator
 from etl_utils.loggers import setup_logger
 from etl_utils.state import State, StatefulMixin
-from psycopg2.extras import DictCursor, DictRow
 
 logger = setup_logger(__file__)
 
 
 class PostgresProducer(StatefulMixin):
     def __init__(
-        self, query: sql.SQL | sql.Composed, state: State, batch_size: int, name: str
+        self,
+        query: sql.SQL | sql.Composed,
+        state: State,
+        batch_size: int,
+        name: str,
     ):
         super().__init__(state, f'{name}_last_modified')
         self.batch_size = batch_size
@@ -41,7 +46,7 @@ class PostgresProducer(StatefulMixin):
 class PostgresPersonProducer(PostgresProducer):
     def __init__(self, state: State, batch_size: int, name: str):
         query = sql.SQL(
-            '''
+            """
             SELECT
                 p.id as p_id,
                 p.full_name as p_full_name,
@@ -50,7 +55,7 @@ class PostgresPersonProducer(PostgresProducer):
             FROM content.person p
             LEFT JOIN content.person_film_work pfw ON pfw.person_id = p.id
             WHERE p.updated_at > %s
-            ORDER BY p.updated_at;'''
+            ORDER BY p.updated_at;"""
         )
         super().__init__(query, state, batch_size, name)
 
@@ -58,7 +63,7 @@ class PostgresPersonProducer(PostgresProducer):
 class PostgresGenreProducer(PostgresProducer):
     def __init__(self, state: State, batch_size: int, name: str):
         query = sql.SQL(
-            '''
+            """
             SELECT
                 id,
                 name,
@@ -66,7 +71,7 @@ class PostgresGenreProducer(PostgresProducer):
                 updated_at
             FROM content.genre
             WHERE updated_at > %s
-            ORDER BY updated_at;'''
+            ORDER BY updated_at;"""
         )
         super().__init__(query, state, batch_size, name)
 
@@ -75,11 +80,11 @@ class PostgresFilmProducer(PostgresProducer):
     def __init__(self, state: State, batch_size: int, name: str, table: str):
         self.table = table
         query = sql.SQL(
-            '''
+            """
             SELECT id, updated_at
             FROM {}
             WHERE updated_at > %s
-            ORDER BY updated_at;'''
+            ORDER BY updated_at;"""
         ).format(sql.Identifier('content', table))
         super().__init__(query, state, batch_size, name)
 
@@ -90,12 +95,12 @@ class PostgresFilmEnricher(StatefulMixin):
         self.table = table
         self.batch_size = batch_size
         self.query = sql.SQL(
-            '''
+            """
             SELECT fw.id, fw.updated_at
             FROM content.film_work fw
             LEFT JOIN {} produced ON produced.film_work_id = fw.id
             WHERE {} IN %s AND fw.updated_at > %s
-            ORDER BY fw.updated_at;'''
+            ORDER BY fw.updated_at;"""
         ).format(
             sql.Identifier('content', f'{table}_film_work'),
             sql.Identifier(f'{table}_id'),
@@ -119,7 +124,8 @@ class PostgresFilmEnricher(StatefulMixin):
             with closing(conn.cursor(cursor_factory=DictCursor)) as cur:
                 updated_after = self.get_last_modified()
                 cur.execute(
-                    self.query, (tuple(row['id'] for row in batch), updated_after)
+                    self.query,
+                    (tuple(row['id'] for row in batch), updated_after),
                 )
                 while batch := cur.fetchmany(self.batch_size):
                     self.set_last_modified(batch[-1]['updated_at'])
@@ -130,7 +136,7 @@ class PostgresFilmEnricher(StatefulMixin):
 class PostgresFilmMerger:
     def __init__(self) -> None:
         self.query = sql.SQL(
-            '''
+            """
             SELECT
                 fw.id as fw_id,
                 fw.title,
@@ -149,7 +155,7 @@ class PostgresFilmMerger:
             LEFT JOIN content.person p ON p.id = pfw.person_id
             LEFT JOIN content.genre_film_work gfw ON gfw.film_work_id = fw.id
             LEFT JOIN content.genre g ON g.id = gfw.genre_id
-            WHERE fw.id IN %s;'''
+            WHERE fw.id IN %s;"""
         )
 
     @backoff_function(psycopg2.InterfaceError, psycopg2.OperationalError)

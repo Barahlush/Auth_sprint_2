@@ -1,19 +1,21 @@
 import json
+from collections.abc import Generator, Iterator
 from copy import deepcopy
 from itertools import groupby
 from operator import attrgetter
-from typing import Any, Generator, Iterator, cast
+from typing import Any, cast
 from uuid import UUID
 
 from config import ELASTIC_HOST, ELASTIC_PORT, SCHEMA_FOLDER
 from elasticsearch import Elasticsearch
 from elasticsearch.exceptions import TransportError
 from elasticsearch.helpers import streaming_bulk
+from psycopg2.extras import DictRow
+
 from etl_utils.backoff import backoff_function
 from etl_utils.loggers import setup_logger
 from etl_utils.models import Filmwork, Genre, NamedEntity, Person
 from etl_utils.state import State, StatefulMixin
-from psycopg2.extras import DictRow
 
 logger = setup_logger(__name__)
 
@@ -30,7 +32,9 @@ class ElasticSearchLoader:
         )
 
     @backoff_function(TransportError)
-    def upload(self, data_generator: Generator[dict[str, Any], None, None]) -> None:
+    def upload(
+        self, data_generator: Generator[dict[str, Any], None, None]
+    ) -> None:
         """Uploads data to ElasticSearch using `streaming_bulk`.
 
         Args:
@@ -50,16 +54,18 @@ class ElasticSearchLoader:
             successes += ok
             if not ok:
                 errors.append(action)
-        logger.info('%d documents uploaded to ES. %d errors.', successes, len(errors))
+        logger.info(
+            '%d documents uploaded to ES. %d errors.', successes, len(errors)
+        )
 
     def create_index(self) -> None:
         """Creates an index in ElasticSearch if one isn't already there."""
         with open(
-            SCHEMA_FOLDER / f'{self.index_name}_index_mappings.json', 'r'
+            SCHEMA_FOLDER / f'{self.index_name}_index_mappings.json'
         ) as mappings_file:
             mappings = json.load(mappings_file)
         with open(
-            SCHEMA_FOLDER / f'{self.index_name}_index_settings.json', 'r'
+            SCHEMA_FOLDER / f'{self.index_name}_index_settings.json'
         ) as settings_file:
             settings = json.load(settings_file)
 
@@ -127,7 +133,10 @@ class ElasticSearchFilmTransformer(StatefulMixin):
 
         genres = [
             sorted(
-                {NamedEntity(id=row['g_id'], name=row['g_name']) for row in group},
+                {
+                    NamedEntity(id=row['g_id'], name=row['g_name'])
+                    for row in group
+                },
                 key=attrgetter('name'),
             )
             for fw_id, group in deepcopy(groups)

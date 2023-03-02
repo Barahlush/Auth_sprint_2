@@ -1,4 +1,4 @@
-from typing import Sequence, Union
+from collections.abc import Sequence
 
 from fastapi import APIRouter, Depends, Query
 from models.persons import PersonFull
@@ -21,10 +21,9 @@ router = APIRouter()
     description='Get list of Persons with search and filters',
 )
 async def person_list(
-    film_ids: Union[str, None] = Query(default=None, alias='filter[film_ids]'),
-    query: Union[str, None] = Query(
-        default=None, description='Text for search by persons'
-    ),
+    film_ids: str | None = Query(default=None, alias='filter[film_ids]'),
+    query: str
+    | None = Query(default=None, description='Text for search by persons'),
     common: CommonQueryParams = Depends(CommonQueryParams),
     person_service: BaseService = Depends(get_person_service),
 ) -> Sequence[PersonFull]:

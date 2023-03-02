@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-from typing import Any, Optional
+from typing import Any
 
 from redis.asyncio import Redis
 
-redis: Optional[Redis[Any]] = None
+redis: Redis[Any] | None = None
 
 
 async def get_redis() -> Redis[Any]:

@@ -1,10 +1,11 @@
-from typing import Any, Type
+from typing import Any
 
 from core.backoff import backoff_function
 from core.logger import get_logger
 from elastic_transport import ConnectionError
 from elasticsearch import AsyncElasticsearch, BadRequestError, NotFoundError
 from pydantic import BaseModel
+
 from services.ancestors import SearchService
 from services.utils import parse_params
 
@@ -17,7 +18,7 @@ class ElasticService(SearchService):
 
     @backoff_function(ConnectionError)
     async def get_one(
-        self, id: str, index: str, model: Type[BaseModel]
+        self, id: str, index: str, model: type[BaseModel]
     ) -> BaseModel | None:
         try:
             doc = await self.elastic.get(index=index, id=id)
@@ -40,14 +41,16 @@ class ElasticService(SearchService):
     async def get_several(
         self,
         index: str,
-        model: Type[BaseModel],
+        model: type[BaseModel],
         query_params: list[str] | None,
         is_nested: bool = False,
         **kwargs: Any
     ) -> list[BaseModel]:
         try:
             body, params = parse_params(query_params, is_nested, **kwargs)
-            docs = await self.elastic.search(index=index, query=body['query'], **params)
+            docs = await self.elastic.search(
+                index=index, query=body['query'], **params
+            )
             return [model(**doc['_source']) for doc in docs['hits']['hits']]
         except NotFoundError as error:
             logger.error(

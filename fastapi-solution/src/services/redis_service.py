@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+from collections.abc import Sequence
 from collections.abc import Sequence as Sq
-from typing import Any, Sequence, Type
+from typing import Any
 
 import orjson
 from core.backoff import backoff_function
@@ -10,6 +11,7 @@ from core.logger import get_logger
 from pydantic import BaseModel
 from redis.asyncio import Redis, RedisError
 from redis.exceptions import ConnectionError
+
 from services.ancestors import AsyncCacheStorage
 
 logger = get_logger(__name__)
@@ -25,7 +27,7 @@ class RedisService(AsyncCacheStorage):
 
     @backoff_function(RedisError, ConnectionError)
     async def get(
-        self, key: str, model: Type[BaseModel]
+        self, key: str, model: type[BaseModel]
     ) -> BaseModel | Sequence[BaseModel] | None:
         if data := await self.redis.get(key):
             data = orjson.loads(data)
@@ -35,7 +37,9 @@ class RedisService(AsyncCacheStorage):
         return data
 
     @backoff_function(RedisError, ConnectionError)
-    async def put(self, key: str, data: None | BaseModel | Sequence[BaseModel]) -> None:
+    async def put(
+        self, key: str, data: None | BaseModel | Sequence[BaseModel]
+    ) -> None:
         if isinstance(data, Sq):
             data_str: str | bytes = orjson.dumps([obj.json() for obj in data])
         elif data:
@@ -45,7 +49,7 @@ class RedisService(AsyncCacheStorage):
         await self.redis.set(key, data_str, ex=settings.cache_expired)
 
     def parse_single_object(
-        self, data: dict[str, Any], model: Type[BaseModel]
+        self, data: dict[str, Any], model: type[BaseModel]
     ) -> BaseModel | None:
         try:
             return model(**data)
@@ -54,10 +58,12 @@ class RedisService(AsyncCacheStorage):
         return None
 
     def parse_several_objects(
-        self, data: Sequence[Any], model: Type[BaseModel]
+        self, data: Sequence[Any], model: type[BaseModel]
     ) -> Sequence[BaseModel] | None:
         try:
             return [model(**orjson.loads(obj)) for obj in data]
         except Exception as e:
-            logger.error(f'Error while parsing several objects from cache: {e}')
+            logger.error(
+                f'Error while parsing several objects from cache: {e}'
+            )
         return None

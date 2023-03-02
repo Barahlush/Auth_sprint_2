@@ -1,10 +1,9 @@
 import logging
 from pathlib import Path
-from typing import Optional, Union
 
 
 def setup_logger(
-    name: str, log_file: Optional[Union[str, Path]] = None, level: int = logging.INFO
+    name: str, log_file: str | Path | None = None, level: int = logging.INFO
 ) -> logging.Logger:
     """Creates a logger.
 

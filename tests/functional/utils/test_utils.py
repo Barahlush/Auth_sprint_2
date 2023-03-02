@@ -1,4 +1,4 @@
-from typing import Any, Type
+from typing import Any
 
 from pydantic import BaseModel, Field
 from utils.logger import get_logger
@@ -29,7 +29,7 @@ class PersonQuery(BaseQuery):
     film_ids: str | None = Field(None, alias='filter[film_ids]')
 
 
-def query_to_key(query: dict[str, Any], model: Type[BaseModel]) -> str:
+def query_to_key(query: dict[str, Any], model: type[BaseModel]) -> str:
     result = model(**query)
     return str(dict(sorted(result.dict().items(), key=lambda x: x[0])))
 

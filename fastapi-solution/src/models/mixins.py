@@ -1,10 +1,11 @@
-from typing import Any, Callable, Optional
+from collections.abc import Callable
+from typing import Any
 
 import orjson
 from pydantic import BaseModel
 
 
-def orjson_dumps(v: Any, *, default: Optional[Callable[[Any], Any]]) -> str:
+def orjson_dumps(v: Any, *, default: Callable[[Any], Any] | None) -> str:
     return orjson.dumps(v, default=default).decode()
 
 

@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 import asyncio
-from typing import Any, AsyncGenerator, Protocol
+from collections.abc import AsyncGenerator
+from typing import Any, Protocol
 
 import pytest
 import pytest_asyncio
