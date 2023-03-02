@@ -51,17 +51,18 @@ auth_breaker = CircuitBreaker(fail_max=5)
 @app.middleware('http')
 async def add_process_time_header(request: Request):
     headers = request.headers
-    base_url = 'http://' + settings.auth_url
+    auth_url = 'http://' + settings.auth_url
+    movies_url = 'http://' + settings.movies_url
     try:
-        auth_answer = await send_circuit_request(f'{base_url}/auth', headers=dict(headers))
+        auth_answer = await send_circuit_request(f'{auth_url}/auth', headers=dict(headers))
     except RequestError:
-        return RedirectResponse(url=base_url, status_code=401)
+        return RedirectResponse(url=auth_url, status_code=401)
     if auth_answer.status_code == 200:
         data = auth_answer.json()
         if 'user' in data['roles']:
-            RedirectResponse(url=f'{base_url}/search?size=10', status_code=200)
-        return RedirectResponse(url=f'{base_url}/register', status_code=403)
-    return RedirectResponse(url=base_url, status_code=401)
+            RedirectResponse(url=f'{movies_url}/search?size=10', status_code=200)
+        return RedirectResponse(url=f'{auth_url}/register', status_code=403)
+    return RedirectResponse(url=auth_url, status_code=401)
 
 
 class LogListener(CircuitBreakerListener):
