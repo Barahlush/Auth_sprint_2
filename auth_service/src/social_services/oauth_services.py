@@ -1,6 +1,7 @@
 from enum import Enum
 
 from authlib.integrations.flask_client import OAuth
+
 from src.social_services.config import (
     GOOGLE_CLIENT_ID,
     GOOGLE_CLIENT_SECRET,

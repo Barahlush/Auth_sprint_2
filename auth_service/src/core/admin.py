@@ -4,7 +4,7 @@ from flask_jwt_extended import get_current_user, jwt_required
 from loguru import logger
 from peewee import CharField, ForeignKeyField, Model
 
-from src.core.models import Role, User, UserRoles, SocialAccount
+from src.core.models import Role, SocialAccount, User, UserRoles
 from src.db.postgres import db
 
 

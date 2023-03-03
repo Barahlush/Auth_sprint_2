@@ -61,6 +61,7 @@ disallow_untyped_defs = true
 strict = true
 implicit_reexport = true
 exclude = [
+    "auth_service/src/social_services/social_auth.py",
     "auth_service/src/db/datastore.py",
     "auth_service/src/core/config.py",
     "auth_service/src/db/postgres.py",

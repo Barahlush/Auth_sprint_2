@@ -33,8 +33,9 @@ class SocialLogin(Resource):
     def get(self, name: str):
         client = oauth.create_client(name)
         if not client:
-            return {'message': 'invalid social service'}, \
-                   HTTPStatus.UNAUTHORIZED
+            return {
+                'message': 'invalid social service'
+            }, HTTPStatus.UNAUTHORIZED
 
         if USE_NGINX:
             scheme = 'https'
@@ -64,8 +65,9 @@ class SocialAuth(Resource):
         client: FlaskRemoteApp = oauth.create_client(social_name)
 
         if not client:
-            return {'message': 'invalid social service'}, \
-                   HTTPStatus.UNAUTHORIZED
+            return {
+                'message': 'invalid social service'
+            }, HTTPStatus.UNAUTHORIZED
 
         token = client.authorize_access_token()
         user_data_parser = self.get_user_data_parser(client.name)
@@ -81,7 +83,7 @@ class SocialAuth(Resource):
         )
 
     def get_user_id_from_social_account(
-            self, social_name: str, user_data: SocialUserModel
+        self, social_name: str, user_data: SocialUserModel
     ) -> str:
         """
         Получения user_id из SocialAccount.
@@ -103,10 +105,7 @@ class SocialAuth(Resource):
         """
         Метод, возвращающий класс для парсинга данных полученных от сервиса.
         """
-        parsers = {
-            'yandex': YandexDataParser,
-            'google': GoogleDataParser
-        }
+        parsers = {'yandex': YandexDataParser, 'google': GoogleDataParser}
         return parsers[client_name]
 
 

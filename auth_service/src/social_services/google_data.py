@@ -7,5 +7,5 @@ class GoogleDataParser(BaseDataParser):
         return SocialUserModel(
             open_id=userinfo_dict.get('sub'),
             email=userinfo_dict.get('email'),
-            name=userinfo_dict.get('family_name')
+            name=userinfo_dict.get('family_name'),
         )

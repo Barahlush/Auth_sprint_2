@@ -70,15 +70,15 @@ class SocialAccount(Model):
     social_name = TextField(null=False)
 
     def __repr__(self):
-        return f"<SocialAccount {self.social_name}>"
+        return f'<SocialAccount {self.social_name}>'
 
     @classmethod
     def create_social_connect(
-            cls,
-            social_id: str,
-            social_name: str,
-            user_id: str = None,
-            user_fields: dict[str, str] = {},
+        cls,
+        social_id: str,
+        social_name: str,
+        user_id: str = None,
+        user_fields: dict[str, str] = {},
     ) -> Model | None:
         """
         Создаёт связку пользователь - соц сеть.
@@ -102,7 +102,7 @@ class SocialAccount(Model):
     @classmethod
     def create_user_from_social_account(
         cls,
-        email: str | None = "*@*",
+        email: str | None = '*@*',
     ) -> str:
         """
         Создание нового пользователя
@@ -136,8 +136,8 @@ class SocialAccount(Model):
 
     @staticmethod
     def random_generator(
-            size: int = 2,
-            chars: str = string.ascii_uppercase + string.digits,
+        size: int = 2,
+        chars: str = string.ascii_uppercase + string.digits,
     ) -> str:
         str_time = str(datetime.now().timestamp())
         return str_time.join(random.choice(chars) for _ in range(size))

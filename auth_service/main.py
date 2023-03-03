@@ -118,7 +118,9 @@ if __name__ == '__main__':
         admin.add_view(admin_view)
         admin.add_view(RoleAdmin(Role, endpoint='roles'))
         admin.add_view(UserRolesAdmin(UserRoles, endpoint='user_roles'))
-        admin.add_view(SocialAccountAdmin(SocialAccount, endpoint='social_account'))
+        admin.add_view(
+            SocialAccountAdmin(SocialAccount, endpoint='social_account')
+        )
         csrf.exempt(admin_view.blueprint)
 
     app.run(host=APP_HOST, port=APP_PORT)

@@ -9,5 +9,5 @@ class YandexDataParser(BaseDataParser):
         return SocialUserModel(
             open_id=userinfo_dict.get('id'),
             email=userinfo_dict.get('default_email'),
-            name=userinfo_dict.get('login')
+            name=userinfo_dict.get('login'),
         )
