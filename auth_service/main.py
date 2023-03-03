@@ -25,10 +25,12 @@ from src.core.admin import (
     UserInfo,
     UserRolesAdmin,
     UserRolesInfo,
+    SocialAccountAdmin,
+    SocialAccountInfo,
 )
 from src.core.config import APP_CONFIG, APP_HOST, APP_PORT, POSTGRES_CONFIG
 from src.core.jwt import jwt
-from src.core.models import LoginEvent, Role, User, UserRoles
+from src.core.models import LoginEvent, Role, User, UserRoles, SocialAccount
 from src.core.security import hash_password
 from src.db.datastore import datastore
 from src.db.postgres import db
@@ -80,6 +82,8 @@ if __name__ == '__main__':
                 UserInfo,
                 RoleInfo,
                 LoginEvent,
+                SocialAccount,
+                SocialAccountInfo,
             ],
             safe=True,
         )
@@ -114,6 +118,7 @@ if __name__ == '__main__':
         admin.add_view(admin_view)
         admin.add_view(RoleAdmin(Role, endpoint='roles'))
         admin.add_view(UserRolesAdmin(UserRoles, endpoint='user_roles'))
+        admin.add_view(SocialAccountAdmin(SocialAccount, endpoint='social_account'))
         csrf.exempt(admin_view.blueprint)
 
     app.run(host=APP_HOST, port=APP_PORT)

@@ -8,6 +8,7 @@ from main import oauth
 
 from src.core.jwt import create_token_pair
 from src.core.models import SocialAccount
+from src.core.views import add_route
 from src.db.datastore import datastore
 from src.social_services.config import USE_NGINX
 from src.social_services.google_data import GoogleDataParser
@@ -107,3 +108,7 @@ class SocialAuth(Resource):
             'google': GoogleDataParser
         }
         return parsers[client_name]
+
+
+add_route('/login/<string:name>', ['GET'], 'social_login', SocialLogin)
+add_route('/<string:social_name>', ['GET'], 'social', SocialAuth)
