@@ -168,7 +168,7 @@ class PeeweeUserDatastore(
         # be nicer and allow sending in a list or set or a single string.
         if 'permissions' in kwargs and hasattr(self.role_model, 'permissions'):
             perms = kwargs['permissions']
-            if isinstance(perms, (set, tuple)):
+            if isinstance(perms, (set | tuple)):
                 perms = list(perms)
             elif isinstance(perms, str):
                 perms = [p.strip() for p in perms.split(',')]
