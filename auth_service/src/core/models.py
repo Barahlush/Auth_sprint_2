@@ -1,6 +1,7 @@
 from datetime import datetime
 from typing import Any
 
+import architect
 from peewee import (
     BooleanField,
     CharField,
@@ -20,6 +21,7 @@ class Role(Model):
         database = db
 
 
+@architect.install('partition', type='range', subtype='integer', constraint='100000', column='email')
 class User(Model):
     email = TextField(unique=True, null=False)
     password_hash = TextField(null=False)
