@@ -34,8 +34,6 @@ run:
 	cp .env-api-example .env-api
 	cp .docker.env.example .docker.env
 	poetry export -f requirements.txt --output auth_service/requirements.txt --without-hashes
-	poetry export -f requirements.txt --output etl/requirements.txt --without-hashes
-	poetry export -f requirements.txt --output fastapi-solution/requirements.txt --without-hashes
 	docker-compose -f docker-compose.yml up --build -d
 
 run_dev:
@@ -43,6 +41,4 @@ run_dev:
 	cp .env-api-example .env-api
 	cp .docker.env.example .docker.env
 	poetry export -f requirements.txt --output auth_service/requirements.txt --without-hashes
-	poetry export -f requirements.txt --output etl/requirements.txt --without-hashes
-	poetry export -f requirements.txt --output fastapi-solution/requirements.txt --without-hashes
 	docker-compose -f docker-compose.yml -f docker-compose-dev.yml up --build
