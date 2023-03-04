@@ -42,7 +42,7 @@ class SocialLogin(Resource):
         else:
             scheme = 'http'
         redirect_uri = url_for(
-            'views.socialauth',
+            'views.social',
             social_name=name,
             _external=True,
             _scheme=scheme,
@@ -50,7 +50,7 @@ class SocialLogin(Resource):
         return client.authorize_redirect(redirect_uri)
 
 
-class SocialAuth(Resource):
+class Social(Resource):
     """
     Класс авторизации через соцсеть. На вход принимает имя соцсети.
     Получает данные о пользователе после авторизации в соцсети.
@@ -109,5 +109,5 @@ class SocialAuth(Resource):
         return parsers[client_name]
 
 
-add_route('/login/<string:name>', ['GET'], 'social_login', SocialLogin)
-add_route('/<string:social_name>', ['GET'], 'social', SocialAuth)
+add_route('/<string:name>', ['GET'], '<string:name>', SocialLogin)
+add_route('/<string:social_name>', ['GET'], 'social', Social)
