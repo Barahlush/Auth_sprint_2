@@ -42,7 +42,7 @@ class SocialLogin(Resource):
         else:
             scheme = 'http'
         redirect_uri = url_for(
-            'core_api.socialauth',
+            'views.socialauth',
             social_name=name,
             _external=True,
             _scheme=scheme,
