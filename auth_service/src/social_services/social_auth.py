@@ -8,7 +8,6 @@ from main import oauth
 
 from src.core.jwt import create_token_pair
 from src.core.models import SocialAccount
-from src.core.views import add_route
 from src.db.datastore import datastore
 from src.social_services.config import USE_NGINX
 from src.social_services.google_data import GoogleDataParser
@@ -42,7 +41,7 @@ class SocialLogin(Resource):
         else:
             scheme = 'http'
         redirect_uri = url_for(
-            'views.social',
+            'social.social',
             social_name=name,
             _external=True,
             _scheme=scheme,
@@ -107,7 +106,3 @@ class Social(Resource):
         """
         parsers = {'yandex': YandexDataParser, 'google': GoogleDataParser}
         return parsers[client_name]
-
-
-add_route('/<string:name>', ['GET'], '<string:name>', SocialLogin)
-add_route('/<string:social_name>', ['GET'], 'social', Social)

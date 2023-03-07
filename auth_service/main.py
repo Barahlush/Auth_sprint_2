@@ -4,6 +4,7 @@ from gevent import monkey
 from src.core.views import views
 from src.db.postgres import patch_psycopg2
 from src.social_services.oauth_services import create_oauth_services
+from src.social_services.routers import social
 
 monkey.patch_all()
 patch_psycopg2()
@@ -69,6 +70,7 @@ if __name__ == '__main__':
         logger.info('Connected to database {}', POSTGRES_CONFIG.database)
         app.register_blueprint(views)
         app.register_blueprint(not_auth)
+        app.register_blueprint(social)
         jwt.init_app(app)
         oauth.init_app(app)
         create_oauth_services(oauth)
