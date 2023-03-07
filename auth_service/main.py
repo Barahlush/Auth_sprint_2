@@ -1,5 +1,8 @@
+from flasgger import Swagger
 from authlib.integrations.flask_client import OAuth
 from gevent import monkey
+
+from src.core import jaeger
 
 from src.core.views import views
 from src.db.postgres import patch_psycopg2
@@ -13,7 +16,8 @@ from contextlib import closing
 
 import flask_admin as admin  # type: ignore
 import psycopg2
-from flask import Flask
+from flask import Flask, request
+from flask_opentracing import FlaskTracer
 from flask_admin.menu import MenuLink  # type: ignore
 from flask_wtf.csrf import CSRFProtect  # type: ignore
 from loguru import logger
@@ -42,6 +46,17 @@ app.config |= APP_CONFIG
 csrf = CSRFProtect(app)
 oauth = OAuth(app)
 
+
+@app.before_request
+def before_request():
+    request_id = request.headers.get('X-Request-Id')
+    if not request_id:
+        raise RuntimeError('request id is required')
+
+
+jaeger.tracer = FlaskTracer(jaeger._setup_jaeger, app=app)
+
+
 admin = admin.Admin(
     app, name='Admin Panel', url='/auth/admin', template_mode='bootstrap3'
 )
@@ -66,6 +81,7 @@ if __name__ == '__main__':
 
     # Setup app and db
     with app.app_context():
+        swagger = Swagger(app, template_file='schema/swagger.json')
         db.init(**dict(POSTGRES_CONFIG))
         logger.info('Connected to database {}', POSTGRES_CONFIG.database)
         app.register_blueprint(views)
