@@ -21,16 +21,16 @@ from routers import not_auth
 from src.core.admin import (
     RoleAdmin,
     RoleInfo,
+    SocialAccountAdmin,
+    SocialAccountInfo,
     UserAdmin,
     UserInfo,
     UserRolesAdmin,
     UserRolesInfo,
-    SocialAccountAdmin,
-    SocialAccountInfo,
 )
 from src.core.config import APP_CONFIG, APP_HOST, APP_PORT, POSTGRES_CONFIG
 from src.core.jwt import jwt
-from src.core.models import LoginEvent, Role, User, UserRoles, SocialAccount
+from src.core.models import LoginEvent, Role, SocialAccount, User, UserRoles
 from src.core.security import hash_password
 from src.db.datastore import datastore
 from src.db.postgres import db
@@ -40,6 +40,8 @@ app = Flask(__name__)
 app.config |= APP_CONFIG
 csrf = CSRFProtect(app)
 oauth = OAuth(app)
+oauth.init_app(app)
+create_oauth_services(oauth)
 
 admin = admin.Admin(
     app, name='Admin Panel', url='/auth/admin', template_mode='bootstrap3'
@@ -70,8 +72,6 @@ if __name__ == '__main__':
         app.register_blueprint(views)
         app.register_blueprint(not_auth)
         jwt.init_app(app)
-        oauth.init_app(app)
-        create_oauth_services(oauth)
 
         db.create_tables(
             [
