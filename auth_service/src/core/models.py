@@ -135,9 +135,8 @@ class SocialAccount(Model):
         :param social_id:
         :return:
         """
-        social_account = SocialAccount.select().where(
-            SocialAccount.social_id == social_id
-        )
+        social_account = SocialAccount(social_id=social_id)
+        logger.info('is_social_exist {}', bool(social_account))
         return bool(social_account)
 
     @staticmethod
