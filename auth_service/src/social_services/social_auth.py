@@ -6,6 +6,7 @@ from authlib.integrations.flask_client import (  # type: ignore
 )
 from flask import Request, Response, jsonify, make_response, url_for
 from flask_restful import Resource, reqparse  # type: ignore
+from loguru import logger
 
 from src.core.controllers import BaseController
 from src.core.jwt import create_token_pair
@@ -20,6 +21,7 @@ sign_in_parser = reqparse.RequestParser()
 sign_in_parser.add_argument(
     'User-Agent', dest='fingerprint', location='headers'
 )
+
 
 def social_login_factory(oauth: OAuth, name: str) -> type:
     class SocialLogin(Resource, BaseController): # type: ignore
@@ -39,8 +41,12 @@ def social_login_factory(oauth: OAuth, name: str) -> type:
                 scheme = 'https'
             else:
                 scheme = 'http'
+            if name == 'google':
+                endpoint = 'views.social_'
+            else:
+                endpoint = 'views.social'
             redirect_uri = url_for(
-                'views.social',
+                endpoint=endpoint,
                 social_name=name,
                 _external=True,
                 _scheme=scheme,
@@ -48,8 +54,9 @@ def social_login_factory(oauth: OAuth, name: str) -> type:
             return client.authorize_redirect(redirect_uri)
     return SocialLogin
 
+
 def social_auth_factory(oauth: OAuth, name: str) -> type:
-    class SocialAuth(Resource, BaseController): # type: ignore
+    class CallBack(Resource, BaseController): # type: ignore
         """
         Класс авторизации через соцсеть. На вход принимает имя соцсети.
         Получает данные о пользователе после авторизации в соцсети.
@@ -58,7 +65,10 @@ def social_auth_factory(oauth: OAuth, name: str) -> type:
 
         В самом конце логируем заход пользователя с access и refresh jwt
         """
+        logger.info('callback!')
+
         def get(self, _request: Request) -> Response:
+            logger.info('callback {}', _request)
             sign_in_parser.parse_args()
             client: FlaskRemoteApp = oauth.create_client(name)
 
@@ -105,4 +115,4 @@ def social_auth_factory(oauth: OAuth, name: str) -> type:
             """
             parsers = {'yandex': YandexDataParser, 'google': GoogleDataParser}
             return parsers[client_name]
-    return SocialAuth
+    return CallBack

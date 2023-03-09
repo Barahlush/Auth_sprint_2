@@ -11,7 +11,7 @@ from src.social_services.config import (
     YANDEX_API_BASE_URL,
     YANDEX_APP_ID,
     YANDEX_APP_SECRET,
-    YANDEX_AUTHORIZE_URL,
+    YANDEX_AUTHORIZE_URL, GOOGLE_DISCOVERY_URL,
 )
 from src.social_services.social_auth import (
     social_auth_factory,
@@ -24,7 +24,7 @@ class Services(Enum):
     YANDEX = 'yandex'
 
 
-def google_register(oauth: OAuth, GOOGLE_DISCOVERY_URL: str|None=None) -> None:
+def google_register(oauth: OAuth) -> None:
     """
     Регистрирует гугл как сервис в котором можно пройти oauth
     После регистрации oauth получает атрибут с именем указанным в name
