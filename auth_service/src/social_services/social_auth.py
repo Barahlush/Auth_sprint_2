@@ -56,7 +56,7 @@ def social_login_factory(oauth: OAuth, name: str) -> type:
 
 
 def social_auth_factory(oauth: OAuth, name: str) -> type:
-    class CallBack(Resource, BaseController): # type: ignore
+    class CallBack(Resource, BaseController):  # type: ignore
         """
         Класс авторизации через соцсеть. На вход принимает имя соцсети.
         Получает данные о пользователе после авторизации в соцсети.
@@ -65,10 +65,7 @@ def social_auth_factory(oauth: OAuth, name: str) -> type:
 
         В самом конце логируем заход пользователя с access и refresh jwt
         """
-        logger.info('callback!')
-
         def get(self, _request: Request) -> Response:
-            logger.info('callback {}', _request)
             sign_in_parser.parse_args()
             client: FlaskRemoteApp = oauth.create_client(name)
 
@@ -83,7 +80,9 @@ def social_auth_factory(oauth: OAuth, name: str) -> type:
             user_id = self.get_user_id_from_social_account(
                 social_name=client.name, user_data=user_data
             )
+            logger.info('user_data {}', user_data)
             user = datastore.find_user(id=user_id)
+            datastore.add_role_to_user(user=user, role='user')
             access_token, refresh_token = create_token_pair(user)
             return make_response(
                 jsonify(access_token=access_token, refresh_token=refresh_token),
@@ -104,7 +103,7 @@ def social_auth_factory(oauth: OAuth, name: str) -> type:
                     social_name=social_name,
                     user_fields=user_data.dict(),
                 )
-                datastore.save(social_account)
+                datastore.create_social_account(social_account)
             return SocialAccount.select().where(
                 SocialAccount.social_id == user_data.open_id
             )

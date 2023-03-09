@@ -3,6 +3,7 @@ import string
 from datetime import datetime
 from typing import Any
 
+from loguru import logger
 from peewee import (
     BooleanField,
     CharField,
@@ -64,7 +65,7 @@ class SocialAccount(Model):
     __tablename__ = 'social_account'
 
     user_is_active = BooleanField(default=True)
-    user = ForeignKeyField(User, backref='social_accounts', lazy_load=True)
+    user = ForeignKeyField(User, related_name='social_account')
 
     social_id = TextField(null=False)
     social_name = TextField(null=False)
@@ -89,6 +90,7 @@ class SocialAccount(Model):
         :param user_fields:
         :return:
         """
+        logger.info('user_fields {}', user_fields)
         if not user_id:
             user_id = cls.create_user_from_social_account(**user_fields)
         if cls.is_social_exist(social_id):
@@ -103,14 +105,16 @@ class SocialAccount(Model):
     def create_user_from_social_account(
         cls,
         email: str | None = '*@*',
+        **kwargs,
     ) -> str:
         """
         Создание нового пользователя
         :param email:
         :return:
         """
-        if email:
-            user = User(email=email)
+        user = User(email=email)
+        if user.get_id():
+            logger.info('find user {}', user)
         else:
             fs_uniquifier = cls.random_generator()
             password = cls.random_generator()
@@ -119,7 +123,9 @@ class SocialAccount(Model):
                 email=email,
                 fs_uniquifier=fs_uniquifier,
             )
-        return user.id
+            user.save()
+            logger.info('create user {}', user)
+        return user.get_id()
 
     @classmethod
     def is_social_exist(cls, social_id: str) -> bool:

@@ -1,12 +1,13 @@
-from authlib.integrations.flask_client import OAuth
 from gevent import monkey
 
-from src.core.views import views
 from src.db.postgres import patch_psycopg2
-from src.social_services.oauth_services import create_oauth_services
 
 monkey.patch_all()
 patch_psycopg2()
+
+from authlib.integrations.flask_client import OAuth
+from src.core.views import views
+from src.social_services.oauth_services import create_oauth_services
 
 from contextlib import closing
 
