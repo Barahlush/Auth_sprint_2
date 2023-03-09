@@ -3,7 +3,7 @@ services:
 
   auth_postgres:
     container_name: auth_postgres
-    image: postgres:13-alpine3.16
+    image: postgres:15
     restart: always
     env_file:
       - .env-auth
@@ -110,7 +110,7 @@ services:
     restart: always
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./nginx/configs:/etc/nginx/conf.d:ro
+      - ./nginx/configs/site.conf:/etc/nginx/conf.d/site.conf:ro
       - ./nginx/data:/data/
     depends_on:
       - fastapi
