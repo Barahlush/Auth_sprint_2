@@ -24,7 +24,7 @@ class Role(Model):
 @architect.install(
     'partition',
     type='range',
-    subtype='integer',
+    subtype='string',
     constraint='100000',
     column='email',
 )
