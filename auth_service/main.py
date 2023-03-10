@@ -38,7 +38,9 @@ from src.core.config import (
     APP_HOST,
     APP_PORT,
     POSTGRES_CONFIG,
-    limits, REDIS_CONFIG
+    REDIS_CONFIG,
+    DAYS_LIMIT,
+    HOURS_LIMIT,
 )
 from src.core.jwt import jwt
 from src.core.models import LoginEvent, Role, SocialAccount, User, UserRoles
@@ -86,9 +88,9 @@ if __name__ == '__main__':
         app.register_blueprint(not_auth)
         jwt.init_app(app)
         limiter = Limiter(
-            app,
-            key_func=get_remote_address,
-            default_limits=limits,
+            get_remote_address,
+            app=app,
+            default_limits=[DAYS_LIMIT, HOURS_LIMIT],
             storage_uri=f'redis://{REDIS_CONFIG.host}:{REDIS_CONFIG.port}'
         )
 

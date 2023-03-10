@@ -44,6 +44,10 @@ class BaseController:
 
 
 class LoginController(BaseController):
+    def __init__(self):
+        super().__init__()
+        self.__qualname__ = self.__class__.__name__
+
     def get(self, request: Request) -> Response:
         next_url = request.args.get('next', url_for('views.index'))
         return make_response(
@@ -122,6 +126,10 @@ class BaseChangeController(BaseController):
     template: str
     view_name: str
 
+    def __init__(self):
+        super().__init__()
+        self.__qualname__ = self.__class__.__name__
+
     def get_changed_data(self, request: Request) -> dict[str, str] | None:
         if request.is_json:
             data = request.get_json().get(self.request_field_name, None)
@@ -169,12 +177,20 @@ class LoginChangeController(BaseChangeController):
     template = 'security/change_login.html'
     view_name = 'views.change_login'
 
+    def __init__(self):
+        super().__init__()
+        self.__qualname__ = self.__class__.__name__
+
 
 class PasswordChangeController(BaseChangeController):
     request_field_name = 'new_password'
     model_field_name = 'password'
     template = 'security/change_password.html'
     view_name = 'views.change_password'
+
+    def __init__(self):
+        super().__init__()
+        self.__qualname__ = self.__class__.__name__
 
     def set_changed_data(self, user: User, new_password: str) -> None:
         salt = generate_salt()
@@ -192,6 +208,10 @@ class PasswordChangeController(BaseChangeController):
 
 
 class LogoutController(BaseController):
+    def __init__(self):
+        super().__init__()
+        self.__qualname__ = self.__class__.__name__
+
     def post(self, request: Request) -> Response:
         response = make_response(redirect(url_for('views.login')), 302)
 
@@ -208,6 +228,10 @@ class LogoutController(BaseController):
 
 
 class LogoutAllController(BaseController):
+    def __init__(self):
+        super().__init__()
+        self.__qualname__ = self.__class__.__name__
+
     def post(self, _request: Request) -> Response:
         response = make_response(redirect(url_for('views.login')), 302)
 
@@ -218,6 +242,10 @@ class LogoutAllController(BaseController):
 
 
 class RegisterController(BaseController):
+    def __init__(self):
+        super().__init__()
+        self.__qualname__ = self.__class__.__name__
+
     def get_register_data(self, request: Request) -> dict[str, str] | None:
         if request.is_json:
             data = request.get_json()
@@ -277,6 +305,10 @@ class RegisterController(BaseController):
 
 
 class HistoryController(BaseController):
+    def __init__(self):
+        super().__init__()
+        self.__qualname__ = self.__class__.__name__
+
     def get(self, _request: Request) -> Response:
         user = get_current_user()
         login_events = (
@@ -294,6 +326,10 @@ class HistoryController(BaseController):
 
 
 class IndexController(BaseController):
+    def __init__(self):
+        super().__init__()
+        self.__qualname__ = self.__class__.__name__
+
     def get(self, _request: Request) -> Response:
         welcome_string = 'Welcome!'
         current_user = get_current_user()
@@ -315,6 +351,10 @@ class IndexController(BaseController):
 
 
 class ProfileController(BaseController):
+    def __init__(self):
+        super().__init__()
+        self.__qualname__ = self.__class__.__name__
+
     def get(self, _request: Request) -> Response:
         user = get_current_user()
         return make_response(
@@ -324,6 +364,10 @@ class ProfileController(BaseController):
 
 
 class RefreshController(BaseController):
+    def __init__(self):
+        super().__init__()
+        self.__qualname__ = self.__class__.__name__
+
     def get(self, request: Request) -> Response:
         current_user = get_current_user()
         next_url = request.args.get('next', url_for('views.index'))
