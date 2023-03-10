@@ -15,6 +15,8 @@ from src.db.postgres import db
 
 
 class Role(Model):
+    __tablename__ = 'role'
+
     name = CharField(unique=True)
 
     class Meta:
@@ -29,6 +31,8 @@ class Role(Model):
     column='email',
 )
 class User(Model):
+    __tablename__ = 'user'
+
     email = TextField(unique=True, null=False)
     password_hash = TextField(null=False)
     fs_uniquifier = TextField(null=False)
@@ -39,6 +43,8 @@ class User(Model):
 
 
 class UserRoles(Model):
+    __tablename__ = 'user_roles'
+
     user = ForeignKeyField(User, related_name='roles')
     role = ForeignKeyField(Role, related_name='users')
     name = property(lambda self: self.role.name)
@@ -51,9 +57,26 @@ class UserRoles(Model):
 
 
 class LoginEvent(Model):
+    __tablename__ = 'login_event'
     history = TextField()
     registered = DateTimeField(default=datetime.now)
     user = ForeignKeyField(User, null=True)
+
+    class Meta:
+        database = db
+
+
+class SocialAccount(Model):
+    __tablename__ = 'social_account'
+
+    user_is_active = BooleanField(default=True)
+    user = ForeignKeyField(User, related_name='social_account')
+
+    social_id = TextField(null=False)
+    social_name = TextField(null=False)
+
+    def __repr__(self):
+        return f'<SocialAccount {self.social_name}>'
 
     class Meta:
         database = db
