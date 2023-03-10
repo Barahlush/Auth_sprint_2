@@ -1,25 +1,38 @@
 version: '3'
-
 services:
+
+  auth_postgres:
+    container_name: auth_postgres
+    image: postgres:15
+    restart: always
+    env_file:
+      - .env-auth
+      - .docker.env
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data/
+    expose:
+      - "5432"
+
+  movies_postgres:
+    container_name: movies_postgres
+    image: postgres:13-alpine3.16
+    restart: always
+    env_file:
+      - .env-api
+    volumes:
+      - ./dbdata:/var/lib/postgresql/data/
+    ports:
+      - "5432:5432"
+
   redis:
     container_name: redis
+    restart: always
     image: redis:7.0.8
     volumes:
       - ./redis_data:/data
     expose:
       - "6379"
     command: redis-server --appendonly yes --save 60 1
-    
-  postgres:
-    container_name: postgres
-    image: postgres:15
-    env_file:
-      - .env
-      - .docker.env
-    volumes:
-      - ./postgres_data:/var/lib/postgresql/data/
-    expose:
-      - "5432"
 
   auth_service:
     build: auth_service
@@ -28,19 +41,85 @@ services:
     volumes:
       - ./auth_service:/opt/app
     env_file:
-      - .env
+      - .env-auth
     ports: 
       - "5000:5000"
     depends_on:
-      - postgres
+      - auth_postgres
 
+  # admin:
+  #   build: admin
+  #   container_name: admin
+  #   restart: always
+  #   depends_on:
+  #     - postgres
+  #   volumes:
+  #     - ./admin:/opt/app
+  #     - ./static/:/opt/app/static/
+  #     - ./media/:/opt/app/media/
+  #   env_file:
+  #     - ./.env
+  #   entrypoint: uwsgi --strict --ini /opt/app/uwsgi/uwsgi.ini
+
+  elastic:
+    image: elasticsearch:8.5.2
+    container_name: elastic
+    restart: always
+    command: ["elasticsearch", "-Elogger.level=WARN"]
+    environment:
+      - xpack.security.enabled=false
+      - "discovery.type=single-node"
+      - "ES_JAVA_OPTS=-Xms750m -Xmx750m"
+    volumes:
+      - ./elastic_search_data:/var/lib/elasticsearch/data
+    expose:
+      - "9200"
+
+  fastapi:
+    build: fastapi-solution
+    container_name: fastapi
+    image: fastapi_image
+    restart: always
+    depends_on:
+      - elastic
+      - redis
+    volumes:
+      - ./fastapi-solution/src:/opt/app
+    env_file:
+      - ./.env-api
+    expose:
+      - "8000"
+
+  etl:
+      build: etl
+      container_name: etl
+      restart: always
+      depends_on:
+        - movies_postgres
+        - elastic
+        - redis
+      volumes:
+        - ./etl/states:/opt/app/states
+      env_file:
+        - .env-api
+      expose:
+        - "8001"
   nginx:
-    image: nginx:1.19.2
+    build: nginx
     container_name: nginx
+    restart: always
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./nginx/configs:/etc/nginx/conf.d:ro
+      - ./nginx/configs/site.conf:/etc/nginx/conf.d/site.conf:ro
+      - ./nginx/data:/data/
     depends_on:
-      - auth_service
+      - fastapi
     ports:
       - "80:80"
+
+  jaeger:
+    image: jaegertracing/all-in-one
+    container_name: jaeger_auth
+    ports:
+      - "5778:5778"
+    restart: unless-stopped

@@ -1,9 +1,7 @@
-import random
-import string
 from datetime import datetime
 from typing import Any
 
-from loguru import logger
+import architect
 from peewee import (
     BooleanField,
     CharField,
@@ -25,6 +23,13 @@ class Role(Model):
         database = db
 
 
+@architect.install(
+    'partition',
+    type='range',
+    subtype='string',
+    constraint='100000',
+    column='email',
+)
 class User(Model):
     __tablename__ = 'user'
 
