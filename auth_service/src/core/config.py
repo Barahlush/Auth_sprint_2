@@ -44,12 +44,10 @@ SALT_LENGTH = 16
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 APP_HOST = os.environ.get('APP_HOST', '0.0.0.0')   # noqa
 APP_PORT = int(os.environ.get('APP_PORT', 5000))
+JAEGER_HOST = os.environ.get('JAEGER_HOST', '127.0.0.1')
+JAEGER_PORT = int(os.environ.get('JAEGER_PORT', 6831))
 DAYS_LIMIT = os.environ.get('DAYS_LIMIT', '200 per day')
 HOURS_LIMIT = os.environ.get('HOURS_LIMIT', '10 per hour')
-
-@property
-def limits() -> list[str]:
-    return [DAYS_LIMIT, HOURS_LIMIT]
 
 
 APP_CONFIG = {
