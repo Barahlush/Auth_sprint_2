@@ -1,9 +1,15 @@
+import logging
+
+from aiobreaker import CircuitBreaker, CircuitBreakerListener
+from httpx import RequestError, AsyncClient
+from starlette.responses import RedirectResponse
+
 from api.v1 import films, genres, persons
 from core.config import elastic_settings, redis_settings, settings
 from core.logger import get_logger
 from db import elastic, redis
 from elasticsearch import AsyncElasticsearch
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.responses import ORJSONResponse
 from redis import asyncio as aioredis
 
@@ -38,3 +44,35 @@ async def shutdown() -> None:
 app.include_router(films.router, prefix='/api/v1/films', tags=['films'])
 app.include_router(genres.router, prefix='/api/v1/genres', tags=['genres'])
 app.include_router(persons.router, prefix='/api/v1/persons', tags=['persons'])
+
+auth_breaker = CircuitBreaker(fail_max=5)
+
+
+@app.middleware('http')
+async def add_process_time_header(request: Request):
+    headers = request.headers
+    auth_host = 'http://' + settings.auth_host
+    movies_host = 'http://' + settings.movies_host
+    try:
+        auth_answer = await send_circuit_request(f'{auth_host}/auth', headers=dict(headers))
+    except RequestError:
+        return RedirectResponse(url=auth_host, status_code=401)
+    if auth_answer.status_code == 200:
+        data = auth_answer.json()
+        if 'user' in data['roles']:
+            RedirectResponse(url=f'{movies_host}/search?size=10', status_code=200)
+        return RedirectResponse(url=f'{auth_host}/register', status_code=403)
+    return RedirectResponse(url=auth_host, status_code=401)
+
+
+class LogListener(CircuitBreakerListener):
+    def state_change(self, breaker, old, new):
+        logging.info(f'{old.state} -> {new.state}')
+
+
+@auth_breaker
+async def send_circuit_request(url: str, headers: dict):
+    async with AsyncClient() as client:
+        answer = await client.get(url, headers=headers)
+        logging.info(answer)
+        return answer

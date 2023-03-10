@@ -47,20 +47,6 @@ services:
     depends_on:
       - auth_postgres
 
-  # admin:
-  #   build: admin
-  #   container_name: admin
-  #   restart: always
-  #   depends_on:
-  #     - postgres
-  #   volumes:
-  #     - ./admin:/opt/app
-  #     - ./static/:/opt/app/static/
-  #     - ./media/:/opt/app/media/
-  #   env_file:
-  #     - ./.env
-  #   entrypoint: uwsgi --strict --ini /opt/app/uwsgi/uwsgi.ini
-
   elastic:
     image: elasticsearch:8.5.2
     container_name: elastic
@@ -104,6 +90,7 @@ services:
         - .env-api
       expose:
         - "8001"
+
   nginx:
     build: nginx
     container_name: nginx

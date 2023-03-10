@@ -6,12 +6,13 @@ from src.core.views import add_route
 from src.social_services.config import (
     GOOGLE_CLIENT_ID,
     GOOGLE_CLIENT_SECRET,
+    GOOGLE_DISCOVERY_URL,
     GOOGLE_OAUTH_SETTINGS,
     YANDEX_ACCESS_TOKEN_URL,
     YANDEX_API_BASE_URL,
     YANDEX_APP_ID,
     YANDEX_APP_SECRET,
-    YANDEX_AUTHORIZE_URL, GOOGLE_DISCOVERY_URL,
+    YANDEX_AUTHORIZE_URL,
 )
 from src.social_services.social_auth import (
     social_auth_factory,
@@ -62,9 +63,20 @@ def yandex_register(oauth: OAuth) -> None:
 def create_oauth_services(oauth: OAuth) -> None:
     google_register(oauth)
     yandex_register(oauth)
-    add_route('/google', ['GET'], 'google', social_login_factory(oauth, 'google'))
-    add_route('/google/auth', ['GET'], 'social_', social_auth_factory(oauth, 'google'))
+    add_route(
+        '/google', ['GET'], 'google', social_login_factory(oauth, 'google')
+    )
+    add_route(
+        '/google/auth',
+        ['GET'],
+        'social_',
+        social_auth_factory(oauth, 'google'),
+    )
 
-    add_route('/yandex', ['GET'], 'yandex', social_login_factory(oauth, 'yandex'))
-    add_route('/yandex/auth', ['GET'], 'social', social_auth_factory(oauth, 'yandex'))
+    add_route(
+        '/yandex', ['GET'], 'yandex', social_login_factory(oauth, 'yandex')
+    )
+    add_route(
+        '/yandex/auth', ['GET'], 'social', social_auth_factory(oauth, 'yandex')
+    )
 

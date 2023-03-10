@@ -6,8 +6,8 @@ from loguru import logger
 from peewee import Model
 
 from src.core.models import LoginEvent as PeeweeLoginEvent
-from src.core.models import SocialAccount
 from src.core.models import Role as PeeweeRole
+from src.core.models import SocialAccount
 from src.core.models import User as PeeweeUser
 from src.core.models import UserRoles as PeeweeUserRoles
 from src.db.postgres import db
@@ -153,7 +153,9 @@ class PeeweeUserDatastore(
         return user
 
     def create_social_account(self, social_account: Any) -> SocialAccount:
-        """Creates and returns a new social account from the given parameters."""
+        """
+        Creates and returns a new social account from the given parameters.
+        """
         return self.put(social_account)
 
     def delete_user(self, user: 'User') -> None:
@@ -177,7 +179,7 @@ class PeeweeUserDatastore(
         # be nicer and allow sending in a list or set or a single string.
         if 'permissions' in kwargs and hasattr(self.role_model, 'permissions'):
             perms = kwargs['permissions']
-            if isinstance(perms, (set, tuple)):
+            if isinstance(perms, (set | tuple)):
                 perms = list(perms)
             elif isinstance(perms, str):
                 perms = [p.strip() for p in perms.split(',')]

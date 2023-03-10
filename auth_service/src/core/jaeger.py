@@ -6,7 +6,7 @@ from opentelemetry.sdk.resources import SERVICE_NAME, Resource
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import (
     BatchSpanProcessor,
-    ConsoleSpanExporter
+    ConsoleSpanExporter,
 )
 
 from src.core.config import DEBUG, JAEGER_HOST, JAEGER_PORT
