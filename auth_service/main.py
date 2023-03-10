@@ -1,7 +1,9 @@
 from flasgger import Swagger
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 from gevent import monkey
 
-from src.core import jaeger
+from src.core.jaeger import tracer_init
 from src.db.postgres import patch_psycopg2
 
 monkey.patch_all()
@@ -15,8 +17,7 @@ from contextlib import closing
 
 import flask_admin as admin  # type: ignore
 import psycopg2
-from flask import Flask, request
-from flask_opentracing import FlaskTracer
+from flask import Flask
 from flask_admin.menu import MenuLink  # type: ignore
 from flask_wtf.csrf import CSRFProtect  # type: ignore
 from loguru import logger
@@ -32,7 +33,15 @@ from src.core.admin import (
     UserRolesAdmin,
     UserRolesInfo,
 )
-from src.core.config import APP_CONFIG, APP_HOST, APP_PORT, POSTGRES_CONFIG
+from src.core.config import (
+    APP_CONFIG,
+    APP_HOST,
+    APP_PORT,
+    POSTGRES_CONFIG,
+    REDIS_CONFIG,
+    DAYS_LIMIT,
+    HOURS_LIMIT,
+)
 from src.core.jwt import jwt
 from src.core.models import LoginEvent, Role, SocialAccount, User, UserRoles
 from src.core.security import hash_password
@@ -46,16 +55,6 @@ csrf = CSRFProtect(app)
 oauth = OAuth(app)
 oauth.init_app(app)
 create_oauth_services(oauth)
-
-
-@app.before_request
-def before_request():
-    request_id = request.headers.get('X-Request-Id')
-    if not request_id:
-        raise RuntimeError('request id is required')
-
-
-jaeger.tracer = FlaskTracer(jaeger._setup_jaeger, app=app)
 
 
 admin = admin.Admin(
@@ -88,6 +87,12 @@ if __name__ == '__main__':
         app.register_blueprint(views)
         app.register_blueprint(not_auth)
         jwt.init_app(app)
+        limiter = Limiter(
+            get_remote_address,
+            app=app,
+            default_limits=[DAYS_LIMIT, HOURS_LIMIT],
+            storage_uri=f'redis://{REDIS_CONFIG.host}:{REDIS_CONFIG.port}'
+        )
 
         db.create_tables(
             [
@@ -138,5 +143,6 @@ if __name__ == '__main__':
             SocialAccountAdmin(SocialAccount, endpoint='social_account')
         )
         csrf.exempt(admin_view.blueprint)
+        tracer_init(app)
 
     app.run(host=APP_HOST, port=APP_PORT)

@@ -32,6 +32,10 @@ def social_login_factory(oauth: OAuth, name: str) -> type:
         В случае успеха - переход на класс авторизации через соцсеть.
         """
 
+        def __init__(self):
+            super().__init__()
+            self.__qualname__ = self.__class__.__name__
+
         def get(self, _request: Request) -> Response:
             client = oauth.create_client(name)
             if not client:
@@ -67,6 +71,10 @@ def social_auth_factory(oauth: OAuth, name: str) -> type:
 
         В самом конце логируем заход пользователя с access и refresh jwt
         """
+        def __init__(self):
+            super().__init__()
+            self.__qualname__ = self.__class__.__name__
+
         def get(self, _request: Request) -> Response:
             sign_in_parser.parse_args()
             client: FlaskRemoteApp = oauth.create_client(name)

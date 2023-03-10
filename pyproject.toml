@@ -48,6 +48,8 @@ jaeger-client = "^4.8.0"
 flasgger = "^0.9.5"
 flask-opentracing = "^1.1.0"
 architect = "^0.6.0"
+flask-limiter = "^3.3.0"
+qualname = "^0.1.0"
 
 [tool.poetry.group.dev.dependencies]
 blue = "*"

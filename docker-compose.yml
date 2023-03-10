@@ -118,8 +118,8 @@ services:
       - "80:80"
 
   jaeger:
-    image: jaegertracing/all-in-one
+    image: jaegertracing/all-in-one:latest
     container_name: jaeger_auth
     ports:
-      - "5778:5778"
+      - "16686:16686"
     restart: unless-stopped
