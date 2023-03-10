@@ -5,14 +5,20 @@ from authlib.integrations.flask_client import (  # type: ignore
     FlaskRemoteApp,
     OAuth,
 )
-from flask import Request, Response, jsonify, make_response, url_for, redirect, request
+from flask import (
+    Request,
+    Response,
+    redirect,
+    request,
+    url_for,
+)
 from flask_restful import Resource, reqparse  # type: ignore
 from loguru import logger
 
 from src.core.controllers import BaseController
 from src.core.jwt import create_token_pair, set_token_cookies
-from src.core.models import SocialAccount, User, LoginEvent
-from src.core.security import hash_password, generate_salt
+from src.core.models import LoginEvent, SocialAccount, User
+from src.core.security import generate_salt, hash_password
 from src.db.datastore import datastore
 from src.social_services.base import BaseDataParser, SocialUserModel
 from src.social_services.config import USE_NGINX
@@ -131,7 +137,9 @@ def social_auth_factory(oauth: OAuth, name: str) -> type:
                     roles=['user'],
                 )
 
-            if account := SocialAccount.get_or_none(SocialAccount.social_id == user_data.open_id):
+            if account := SocialAccount.get_or_none(
+                    SocialAccount.social_id == user_data.open_id
+            ):
                 logger.info('find_account: {}', account)
             else:
                 account = SocialAccount(
@@ -144,9 +152,11 @@ def social_auth_factory(oauth: OAuth, name: str) -> type:
 
             return user
 
-        def get_user_data_parser(self, client_name: str) -> type[BaseDataParser]:
+        def get_user_data_parser(
+                self, client_name: str
+        ) -> type[BaseDataParser]:
             """
-            Метод, возвращающий класс для парсинга данных полученных от сервиса.
+            Метод возвращает класс для парсинга данных полученных от сервиса
             """
             parsers = {'yandex': YandexDataParser, 'google': GoogleDataParser}
             return parsers[client_name]

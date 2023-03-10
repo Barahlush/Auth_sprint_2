@@ -79,21 +79,6 @@ tests = ["cloudpickle", "coverage[toml] (>=5.0.2)", "hypothesis", "mypy (>=0.900
 tests-no-zope = ["cloudpickle", "coverage[toml] (>=5.0.2)", "hypothesis", "mypy (>=0.900,!=0.940)", "pympler", "pytest (>=4.3.0)", "pytest-mypy-plugins"]
 
 [[package]]
-name = "avro"
-version = "1.11.1"
-description = "Avro is a serialization and RPC framework."
-category = "main"
-optional = false
-python-versions = ">=3.6"
-files = [
-    {file = "avro-1.11.1.tar.gz", hash = "sha256:f123623ecc648d0e20ce14f8ed85162140c13cc4b108865d1b2529fbfa06c008"},
-]
-
-[package.extras]
-snappy = ["python-snappy"]
-zstandard = ["zstandard"]
-
-[[package]]
 name = "authlib"
 version = "0.15.5"
 description = "The ultimate Python library in building OAuth and OpenID Connect servers."
@@ -186,19 +171,19 @@ uvloop = ["uvloop (>=0.15.2)"]
 
 [[package]]
 name = "blue"
-version = "0.9.1"
+version = "0.9.0"
 description = "Blue -- Some folks like black but I prefer blue."
 category = "dev"
 optional = false
 python-versions = "*"
 files = [
-    {file = "blue-0.9.1-py3-none-any.whl", hash = "sha256:037742c072c58a2ff024f59fb9164257b907f97f8f862008db3b013d1f27cc22"},
-    {file = "blue-0.9.1.tar.gz", hash = "sha256:76b4f26884a8425042356601d80773db6e0e14bebaa7a59d7c54bf8cef2e2af5"},
+    {file = "blue-0.9.0-py3-none-any.whl", hash = "sha256:7eec33ef8d39c60f1336229b226a004b9a26743b156054844dc86117d0a1d0e6"},
+    {file = "blue-0.9.0.tar.gz", hash = "sha256:da06d09f8417ad475e21a26dd0a7dae6771146fdd7f5760450183183230f9ef1"},
 ]
 
 [package.dependencies]
 black = "22.1.0"
-flake8 = ">=3.8,<5.0.0"
+flake8 = ">=3.8"
 
 [[package]]
 name = "cachecontrol"
@@ -2643,17 +2628,6 @@ files = [
 ]
 
 [[package]]
-name = "qualname"
-version = "0.1.0"
-description = "__qualname__ emulation for older Python versions"
-category = "main"
-optional = false
-python-versions = "*"
-files = [
-    {file = "qualname-0.1.0.tar.gz", hash = "sha256:277cf6aa4b2ad36beed1153cfa7bf521b210d54fbecb3d8eea0c5679cecc9ed8"},
-]
-
-[[package]]
 name = "redis"
 version = "4.5.1"
 description = "Python client for Redis database and key-value store"
@@ -3640,4 +3614,4 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "9ee99781e0e20f0528a1fd0d20aa4be0d613de4a819f05fe0fd1f542d6bb8dfa"
+content-hash = "18886e714a816dc6b2a96aa7dab650960861489d3aa5ebb33948d53d24162c67"

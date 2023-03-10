@@ -51,7 +51,6 @@ pre-commit = "^3.1.1"
 flake8 = "^6.0.0"
 architect = "^0.6.0"
 flask-limiter = "^3.3.0"
-qualname = "^0.1.0"
 
 [tool.poetry.group.dev.dependencies]
 blue = "*"
@@ -114,7 +113,7 @@ select = [
     "UP",
     "W",
 ]
-ignore = ["A003", "B006", "RET504", "N803"]
+ignore = ["A003", "B006", "RET504", "N803", "PLE1205", "S105"]
 exclude = ["auth_service/main.py", "dbdata", "postgres_data", "redis_data", "venv", "tests", "etl", "fastapi-solution"]
 target-version = "py310"
 
