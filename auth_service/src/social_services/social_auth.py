@@ -5,13 +5,13 @@ from authlib.integrations.flask_client import (  # type: ignore
     FlaskRemoteApp,
     OAuth,
 )
-from flask import Request, Response, jsonify, make_response, url_for, redirect
+from flask import Request, Response, jsonify, make_response, url_for, redirect, request
 from flask_restful import Resource, reqparse  # type: ignore
 from loguru import logger
 
 from src.core.controllers import BaseController
 from src.core.jwt import create_token_pair, set_token_cookies
-from src.core.models import SocialAccount, User
+from src.core.models import SocialAccount, User, LoginEvent
 from src.core.security import hash_password, generate_salt
 from src.db.datastore import datastore
 from src.social_services.base import BaseDataParser, SocialUserModel
@@ -84,6 +84,14 @@ def social_auth_factory(oauth: OAuth, name: str) -> type:
             )
             logger.info('user_data {}', user_data)
             logger.info('user {}', user)
+
+            user_agent = request.headers.get('User-Agent')
+
+            user_history = LoginEvent(
+                history=user_agent,
+                user=user,
+            )
+            user_history.save()
 
             response = cast(Response, redirect(url_for('views.index')))
 
