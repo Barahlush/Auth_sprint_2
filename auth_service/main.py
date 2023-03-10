@@ -1,4 +1,6 @@
 from flasgger import Swagger
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 from gevent import monkey
 
 from src.core import jaeger
@@ -32,7 +34,13 @@ from src.core.admin import (
     UserRolesAdmin,
     UserRolesInfo,
 )
-from src.core.config import APP_CONFIG, APP_HOST, APP_PORT, POSTGRES_CONFIG
+from src.core.config import (
+    APP_CONFIG,
+    APP_HOST,
+    APP_PORT,
+    POSTGRES_CONFIG,
+    limits, REDIS_CONFIG
+)
 from src.core.jwt import jwt
 from src.core.models import LoginEvent, Role, SocialAccount, User, UserRoles
 from src.core.security import hash_password
@@ -88,6 +96,12 @@ if __name__ == '__main__':
         app.register_blueprint(views)
         app.register_blueprint(not_auth)
         jwt.init_app(app)
+        limiter = Limiter(
+            app,
+            key_func=get_remote_address,
+            default_limits=limits,
+            storage_uri=f'redis://{REDIS_CONFIG.host}:{REDIS_CONFIG.port}'
+        )
 
         db.create_tables(
             [
