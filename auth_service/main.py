@@ -7,6 +7,10 @@ from src.db.postgres import patch_psycopg2
 monkey.patch_all()
 patch_psycopg2()
 
+from authlib.integrations.flask_client import OAuth
+from src.core.views import views
+from src.social_services.oauth_services import create_oauth_services
+
 from contextlib import closing
 
 import flask_admin as admin  # type: ignore
@@ -21,6 +25,8 @@ from routers import not_auth
 from src.core.admin import (
     RoleAdmin,
     RoleInfo,
+    SocialAccountAdmin,
+    SocialAccountInfo,
     UserAdmin,
     UserInfo,
     UserRolesAdmin,
@@ -28,9 +34,8 @@ from src.core.admin import (
 )
 from src.core.config import APP_CONFIG, APP_HOST, APP_PORT, POSTGRES_CONFIG
 from src.core.jwt import jwt
-from src.core.models import LoginEvent, Role, User, UserRoles
+from src.core.models import LoginEvent, Role, SocialAccount, User, UserRoles
 from src.core.security import hash_password
-from src.core.views import views
 from src.db.datastore import datastore
 from src.db.postgres import db
 
@@ -38,6 +43,9 @@ from src.db.postgres import db
 app = Flask(__name__)
 app.config |= APP_CONFIG
 csrf = CSRFProtect(app)
+oauth = OAuth(app)
+oauth.init_app(app)
+create_oauth_services(oauth)
 
 
 @app.before_request
@@ -90,6 +98,8 @@ if __name__ == '__main__':
                 UserInfo,
                 RoleInfo,
                 LoginEvent,
+                SocialAccount,
+                SocialAccountInfo,
             ],
             safe=True,
         )
@@ -124,6 +134,9 @@ if __name__ == '__main__':
         admin.add_view(admin_view)
         admin.add_view(RoleAdmin(Role, endpoint='roles'))
         admin.add_view(UserRolesAdmin(UserRoles, endpoint='user_roles'))
+        admin.add_view(
+            SocialAccountAdmin(SocialAccount, endpoint='social_account')
+        )
         csrf.exempt(admin_view.blueprint)
 
     app.run(host=APP_HOST, port=APP_PORT)

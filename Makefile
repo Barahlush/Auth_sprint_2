@@ -30,8 +30,8 @@ build:
 	docker-compose build
 
 run:
-	cp .env-auth-example .env-auth
 	cp .env-api-example .env-api
+	cp .env-auth-example .env-auth
 	cp .docker.env.example .docker.env
 	poetry export -f requirements.txt --output auth_service/requirements.txt --without-hashes
 	docker-compose -f docker-compose.yml up --build -d

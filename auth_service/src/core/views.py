@@ -35,6 +35,7 @@ def add_route(
         route_processor = decorator(route_processor)
     route_processor.required_methods = methods   # type: ignore
 
+    logger.info(f'Add route: {rule}')
     views.add_url_rule(
         rule,
         endpoint=endpoint,
