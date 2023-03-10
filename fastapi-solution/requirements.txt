@@ -16,3 +16,5 @@ pytest-asyncio==0.20.3
 requests==2.28.1
 aiohttp==3.8.3
 multidict==6.0.4
+aiobreaker==1.2.0
+httpx==0.23.3

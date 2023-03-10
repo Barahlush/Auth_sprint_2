@@ -612,7 +612,7 @@ testing = ["covdefaults (>=2.2.2)", "coverage (>=7.0.1)", "pytest (>=7.2)", "pyt
 name = "flake8"
 version = "6.0.0"
 description = "the modular source code checker: pep8 pyflakes and co"
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.8.1"
 files = [
@@ -1526,7 +1526,7 @@ files = [
 name = "mccabe"
 version = "0.7.0"
 description = "McCabe checker, plugin for flake8"
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.6"
 files = [
@@ -2303,7 +2303,7 @@ files = [
 name = "pycodestyle"
 version = "2.10.0"
 description = "Python style guide checker"
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.6"
 files = [
@@ -2380,7 +2380,7 @@ email = ["email-validator (>=1.0.3)"]
 name = "pyflakes"
 version = "3.0.1"
 description = "passive checker of Python programs"
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.6"
 files = [
@@ -3614,4 +3614,4 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "18886e714a816dc6b2a96aa7dab650960861489d3aa5ebb33948d53d24162c67"
+content-hash = "219930f685652a890f2db2d0263df738a3f7dfdccf9e80c29a0bd706a1b879a8"
