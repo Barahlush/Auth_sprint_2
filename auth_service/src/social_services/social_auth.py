@@ -1,18 +1,18 @@
 from http import HTTPStatus
-from typing import Any
+from typing import Any, cast
 
 from authlib.integrations.flask_client import (  # type: ignore
     FlaskRemoteApp,
     OAuth,
 )
-from flask import Request, Response, jsonify, make_response, url_for
+from flask import Request, Response, jsonify, make_response, url_for, redirect
 from flask_restful import Resource, reqparse  # type: ignore
 from loguru import logger
 
 from src.core.controllers import BaseController
-from src.core.jwt import create_token_pair
-from src.core.models import SocialAccount
-from src.core.security import hash_password
+from src.core.jwt import create_token_pair, set_token_cookies
+from src.core.models import SocialAccount, User
+from src.core.security import hash_password, generate_salt
 from src.db.datastore import datastore
 from src.social_services.base import BaseDataParser, SocialUserModel
 from src.social_services.config import USE_NGINX
@@ -79,30 +79,23 @@ def social_auth_factory(oauth: OAuth, name: str) -> type:
             token = client.authorize_access_token()
             user_data_parser = self.get_user_data_parser(client.name)
             user_data = user_data_parser(client, token).get_user_info()
-            user_id = self.get_user_id_from_social_account(
+            user = self.get_user_id_from_social_account(
                 social_name=client.name, user_data=user_data
             )
             logger.info('user_data {}', user_data)
-            logger.info('user_id {}', user_id)
-            user = datastore.find_user(id=user_id)
-            logger.info('find_user {}', user)
-            if user is None:
-                datastore.create_user(
-                    user_id=user_id,
-                    email=user_data.email,
-                    password_hash=hash_password(user_data.email, 'text'),
-                    fs_uniquifier=str(user_id),
-                    roles=['user'],
-                )
-                logger.info('create user')
-            else:
-                datastore.add_role_to_user(user=user, role=3)
-                logger.info('add role to user')
+            logger.info('user {}', user)
+
+            response = cast(Response, redirect(url_for('views.index')))
+
             access_token, refresh_token = create_token_pair(user)
-            return make_response(
-                jsonify(access_token=access_token, refresh_token=refresh_token),
-                HTTPStatus.OK,
+
+            set_token_cookies(
+                response,
+                access_token,
+                refresh_token,
             )
+
+            return response
 
         def get_user_id_from_social_account(
             self, social_name: str, user_data: SocialUserModel
@@ -111,19 +104,29 @@ def social_auth_factory(oauth: OAuth, name: str) -> type:
             Получения user_id из SocialAccount.
             Если social_account не создан - он создается.
             """
-            if not SocialAccount.is_social_exist(user_data.open_id):
+            logger.info('user_data.open_id: {}', user_data.open_id)
+            user = User.get_or_none(email=user_data.email)
 
-                social_account = SocialAccount.create_social_connect(
+            if user is None:
+                user = datastore.create_user(
+                    email=user_data.email,
+                    password_hash=hash_password(user_data.email, 'text'),
+                    fs_uniquifier=generate_salt(),
+                    roles=['user'],
+                )
+
+            if account := SocialAccount.get_or_none(SocialAccount.social_id == user_data.open_id):
+                logger.info('find_account: {}', account)
+            else:
+                account = SocialAccount(
                     social_id=user_data.open_id,
                     social_name=social_name,
-                    user_fields=user_data.dict(),
+                    user=user
                 )
-                datastore.create_social_account(social_account)
-                logger.info('create social_account: {}', social_account)
-            logger.info('user_data.open_id: {}', user_data.open_id)
-            find_account = SocialAccount(social_id=user_data.open_id)
-            logger.info('find_account: {}', find_account)
-            return find_account
+                account.save()
+                logger.info('create account: {}', account)
+
+            return user
 
         def get_user_data_parser(self, client_name: str) -> type[BaseDataParser]:
             """
