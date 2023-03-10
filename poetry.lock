@@ -2954,14 +2954,14 @@ sqlcipher = ["sqlcipher3-binary"]
 
 [[package]]
 name = "starlette"
-version = "0.25.0"
+version = "0.26.0.post1"
 description = "The little ASGI library that shines."
 category = "main"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "starlette-0.25.0-py3-none-any.whl", hash = "sha256:774f1df1983fd594b9b6fb3ded39c2aa1979d10ac45caac0f4255cbe2acb8628"},
-    {file = "starlette-0.25.0.tar.gz", hash = "sha256:854c71e73736c429c2bdb07801f2c76c9cba497e7c3cf4988fde5e95fe4cdb3c"},
+    {file = "starlette-0.26.0.post1-py3-none-any.whl", hash = "sha256:5b80b546ed60d43da45f80113c05ff9f4c44fae95ee884945958eba685c56253"},
+    {file = "starlette-0.26.0.post1.tar.gz", hash = "sha256:af0e54d08afed70fcbc53ae01e71c9c62c8ab038ff8cfd3f7477bf0f086b5ab4"},
 ]
 
 [package.dependencies]
@@ -3545,4 +3545,4 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "7bf15ec85f4c0bfb1e7101f1716c975e4c0a71975c68953907c4fd3474a609c9"
+content-hash = "83160bcd20b57e79011d5fe9c641b3cdcf3a2ee891ea35e1b1879336c21ea0c1"

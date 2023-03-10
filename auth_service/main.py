@@ -1,7 +1,7 @@
 from flasgger import Swagger
 from gevent import monkey
 
-from src.core import jaeger
+from src.core.jaeger import tracer_init
 from src.db.postgres import patch_psycopg2
 
 monkey.patch_all()
@@ -15,8 +15,7 @@ from contextlib import closing
 
 import flask_admin as admin  # type: ignore
 import psycopg2
-from flask import Flask, request
-from flask_opentracing import FlaskTracer
+from flask import Flask
 from flask_admin.menu import MenuLink  # type: ignore
 from flask_wtf.csrf import CSRFProtect  # type: ignore
 from loguru import logger
@@ -46,16 +45,6 @@ csrf = CSRFProtect(app)
 oauth = OAuth(app)
 oauth.init_app(app)
 create_oauth_services(oauth)
-
-
-@app.before_request
-def before_request():
-    request_id = request.headers.get('X-Request-Id')
-    if not request_id:
-        raise RuntimeError('request id is required')
-
-
-jaeger.tracer = FlaskTracer(jaeger._setup_jaeger, app=app)
 
 
 admin = admin.Admin(
@@ -138,5 +127,6 @@ if __name__ == '__main__':
             SocialAccountAdmin(SocialAccount, endpoint='social_account')
         )
         csrf.exempt(admin_view.blueprint)
+        tracer_init(app)
 
     app.run(host=APP_HOST, port=APP_PORT)
