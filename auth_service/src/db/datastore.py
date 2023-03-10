@@ -6,6 +6,7 @@ from loguru import logger
 from peewee import Model
 
 from src.core.models import LoginEvent as PeeweeLoginEvent
+from src.core.models import SocialAccount
 from src.core.models import Role as PeeweeRole
 from src.core.models import User as PeeweeUser
 from src.core.models import UserRoles as PeeweeUserRoles
@@ -85,6 +86,10 @@ class UserDatastore(Generic[User, Role, LoginEvent]):
         raise NotImplementedError
 
     @abstractmethod
+    def create_social_account(self, **kwargs: Any) -> SocialAccount:
+        raise NotImplementedError
+
+    @abstractmethod
     def delete_user(self, user: User) -> bool:
         raise NotImplementedError
 
@@ -146,6 +151,10 @@ class PeeweeUserDatastore(
             self.add_role_to_user(user, self.role_model.get(name=role))
         self.put(user)
         return user
+
+    def create_social_account(self, social_account: Any) -> SocialAccount:
+        """Creates and returns a new social account from the given parameters."""
+        return self.put(social_account)
 
     def delete_user(self, user: 'User') -> None:
         """Deletes the specified user.

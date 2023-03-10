@@ -28,7 +28,7 @@ class NavbarLink:
                 <form action="{self.href}" method="POST">
                     <input type="hidden" name="csrf_token" value="{ csrf_token }" />
                     <input class="{is_active_str} {decor_class}" type="submit" value="{self.text}" >
-                    
+
                     </input>
                 </form>
                 </span>
@@ -37,8 +37,8 @@ class NavbarLink:
         return Markup(
             f"""
             <span class="navbar-item">
-                <a 
-                class="{decor_class} {is_active_str}" 
+                <a
+                class="{decor_class} {is_active_str}"
                 href="{self.href}">
                     {self.text}
                 </a>
