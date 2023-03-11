@@ -69,6 +69,12 @@ pw_migrate rollback [OPTIONS]
 ```
 
 Источник: https://github.com/klen/peewee_migrate
+
+### 5. Создать пользователя с правами администратора
+
+```bash
+python -m flask create admin example@mail.com password
+```
 </details>
 
 
