@@ -1,4 +1,4 @@
-from enum import Enum
+from enum import Enum, unique
 
 from authlib.integrations.flask_client import OAuth  # type: ignore
 from src.v1.core.config import settings
@@ -10,6 +10,7 @@ from src.v1.social_services.social_auth import (
 )
 
 
+@unique
 class Services(Enum):
     GOOGLE = 'google'
     YANDEX = 'yandex'
@@ -54,19 +55,19 @@ def create_oauth_services(oauth: OAuth) -> None:
     google_register(oauth)
     yandex_register(oauth)
     add_route(
-        '/google', ['GET'], 'google', social_login_factory(oauth, 'google')
+        '/google', ['GET'], 'google', social_login_factory(oauth, Services.GOOGLE.value)
     )
     add_route(
         '/google/auth',
         ['GET'],
         'social_',
-        social_auth_factory(oauth, 'google'),
+        social_auth_factory(oauth, Services.GOOGLE.value),
     )
 
     add_route(
-        '/yandex', ['GET'], 'yandex', social_login_factory(oauth, 'yandex')
+        '/yandex', ['GET'], 'yandex', social_login_factory(oauth, Services.YANDEX.value)
     )
     add_route(
-        '/yandex/auth', ['GET'], 'social', social_auth_factory(oauth, 'yandex')
+        '/yandex/auth', ['GET'], 'social', social_auth_factory(oauth, Services.YANDEX.value)
     )
 
