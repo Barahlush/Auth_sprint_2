@@ -20,6 +20,9 @@ lint:
 	@echo
 	poetry run pip-audit --ignore PYSEC-2022-42969
 
+create_superuser:
+	#Запуск консоли для управления redis-контейнером.
+	docker-compose exec auth_service bash
 
 format:
 	poetry run ruff --silent --exit-zero --fix .

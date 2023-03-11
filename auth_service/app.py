@@ -1,6 +1,3 @@
-from flasgger import Swagger
-from flask_limiter import Limiter
-from flask_limiter.util import get_remote_address
 from gevent import monkey
 
 from src.core.jaeger import tracer_init
@@ -14,6 +11,11 @@ from src.core.views import views
 from src.social_services.oauth_services import create_oauth_services
 
 from contextlib import closing
+
+from src.cli.commands import cli_bp
+from flasgger import Swagger
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 
 import flask_admin as admin  # type: ignore
 import psycopg2
@@ -44,7 +46,6 @@ from src.core.config import (
 )
 from src.core.jwt import jwt
 from src.core.models import LoginEvent, Role, SocialAccount, User, UserRoles
-from src.core.security import hash_password
 from src.db.datastore import datastore
 from src.db.postgres import db
 
@@ -108,6 +109,7 @@ if __name__ == '__main__':
             ],
             safe=True,
         )
+        app.register_blueprint(cli_bp)
         # Create roles
         datastore.find_or_create_role(
             name='admin',
@@ -125,16 +127,6 @@ if __name__ == '__main__':
             name='user', permissions={'user-read', 'user-write'}
         )
         datastore.find_or_create_role(name='reader', permissions={'user-read'})
-        # Create a user to test with
-        if admin_user := datastore.find_user(email='test@me.com'):
-            datastore.delete_user(admin_user)
-        datastore.create_user(
-            user_id=1,
-            email='test@me.com',
-            password_hash=hash_password('password', 'text'),  # noqa
-            fs_uniquifier='text',
-            roles=['admin'],
-        )
         admin_view = UserAdmin(User, endpoint='users')
         admin.add_view(admin_view)
         admin.add_view(RoleAdmin(Role, endpoint='roles'))
