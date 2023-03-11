@@ -17,8 +17,8 @@ from flask_jwt_extended import (
 from flask_jwt_extended.exceptions import JWTExtendedException
 from loguru import logger
 
-from src.core.models import User
-from src.db.redis import jwt_redis_blocklist
+from src.v1.core.models import User
+from src.v1.db.redis import jwt_redis_blocklist
 
 jwt = JWTManager()
 P = ParamSpec('P')

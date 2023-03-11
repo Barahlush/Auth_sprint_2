@@ -1,17 +1,26 @@
+from gevent import monkey
+from src.v1.db.postgres import patch_psycopg2
+
+monkey.patch_all()
+patch_psycopg2()
+
 from flasgger import Swagger
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
-from gevent import monkey
 
-from src.core.jaeger import tracer_init
-from src.db.postgres import patch_psycopg2
+from src.v1.core.jaeger import tracer_init
+from src.v1.core.models import User, Role, UserRoles, LoginEvent, SocialAccount
+
+from src.v1.social_services.oauth_services import create_oauth_services
+from src.v1.core.config import POSTGRES_CONFIG, settings, REDIS_CONFIG
+from src.v1.core.jwt import jwt
+from src.v1.core.views import views
+from src.v1.core.security import hash_password
 
 monkey.patch_all()
 patch_psycopg2()
 
 from authlib.integrations.flask_client import OAuth
-from src.core.views import views
-from src.social_services.oauth_services import create_oauth_services
 
 from contextlib import closing
 
@@ -22,35 +31,23 @@ from flask_admin.menu import MenuLink  # type: ignore
 from flask_wtf.csrf import CSRFProtect  # type: ignore
 from loguru import logger
 from psycopg2.errors import DuplicateDatabase
-from routers import not_auth
-from src.core.admin import (
+from src.v1.core.routers import not_auth
+from src.v1.core.admin import (
     RoleAdmin,
     RoleInfo,
+    UserRolesInfo,
     SocialAccountAdmin,
     SocialAccountInfo,
     UserAdmin,
     UserInfo,
     UserRolesAdmin,
-    UserRolesInfo,
 )
-from src.core.config import (
-    APP_CONFIG,
-    APP_HOST,
-    APP_PORT,
-    POSTGRES_CONFIG,
-    REDIS_CONFIG,
-    DAYS_LIMIT,
-    HOURS_LIMIT,
-)
-from src.core.jwt import jwt
-from src.core.models import LoginEvent, Role, SocialAccount, User, UserRoles
-from src.core.security import hash_password
-from src.db.datastore import datastore
-from src.db.postgres import db
+from src.v1.db.datastore import datastore
+from src.v1.db.postgres import db
 
 # Create app
 app = Flask(__name__)
-app.config |= APP_CONFIG
+app.config |= settings.APP_CONFIG
 csrf = CSRFProtect(app)
 oauth = OAuth(app)
 oauth.init_app(app)
@@ -90,7 +87,7 @@ if __name__ == '__main__':
         limiter = Limiter(
             get_remote_address,
             app=app,
-            default_limits=[DAYS_LIMIT, HOURS_LIMIT],
+            default_limits=[settings.DAYS_LIMIT, settings.HOURS_LIMIT],
             storage_uri=f'redis://{REDIS_CONFIG.host}:{REDIS_CONFIG.port}'
         )
 
@@ -143,6 +140,7 @@ if __name__ == '__main__':
             SocialAccountAdmin(SocialAccount, endpoint='social_account')
         )
         csrf.exempt(admin_view.blueprint)
-        tracer_init(app)
+        if settings.ENABLE_TRACER:
+            tracer_init(app)
 
-    app.run(host=APP_HOST, port=APP_PORT)
+    app.run(host=settings.APP_HOST, port=settings.APP_PORT)

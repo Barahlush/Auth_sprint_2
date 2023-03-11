@@ -2,8 +2,7 @@ from abc import abstractmethod
 from datetime import datetime
 
 import redis
-
-from src.core.config import APP_CONFIG, REDIS_CONFIG
+from src.v1.core.config import settings, REDIS_CONFIG
 
 
 class TokenBlocklist:
@@ -65,7 +64,7 @@ class RedisTokenBlocklist(TokenBlocklist):
             self.redis.set(
                 user_identity,
                 datetime.now().timestamp(),
-                ex=APP_CONFIG['JWT_REFRESH_TOKEN_EXPIRES'],
+                ex=settings.APP_CONFIG['JWT_REFRESH_TOKEN_EXPIRES'],
             )
         )
 

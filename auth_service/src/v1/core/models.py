@@ -11,7 +11,7 @@ from peewee import (
     TextField,
 )
 
-from src.db.postgres import db
+from src.v1.db.postgres import db
 
 
 class Role(Model):

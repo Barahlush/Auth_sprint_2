@@ -6,7 +6,7 @@ from flask_jwt_extended import get_current_user, verify_jwt_in_request
 from flask_wtf.csrf import generate_csrf  # type: ignore
 from loguru import logger
 
-from src.core.controllers import (
+from src.v1.core.controllers import (
     HistoryController,
     IndexController,
     LoginChangeController,
@@ -18,10 +18,10 @@ from src.core.controllers import (
     RefreshController,
     RegisterController,
 )
-from src.core.jwt import roles_required
-from src.utils.template_utils import navbar_items
+from src.v1.core.jwt import roles_required
+from src.v1.utils.template_utils import navbar_items
 
-views = Blueprint('views', __name__, url_prefix='/auth')
+views = Blueprint('views', __name__, url_prefix='/v1/auth')
 
 
 def add_route(

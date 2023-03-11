@@ -13,15 +13,15 @@ from flask import (
 from flask_jwt_extended import get_current_user, unset_jwt_cookies
 from flask_peewee.utils import object_list  # type: ignore
 
-from src.core.jwt import (
+from src.v1.core.jwt import (
     create_token_pair,
     revoke_all_user_tokens,
     revoke_token,
     set_token_cookies,
 )
-from src.core.models import LoginEvent, User
-from src.core.security import check_password, generate_salt, hash_password
-from src.db.datastore import datastore
+from src.v1.core.security import generate_salt, hash_password, check_password
+from src.v1.db.datastore import datastore
+from src.v1.core.models import LoginEvent, User
 
 
 class BaseController:

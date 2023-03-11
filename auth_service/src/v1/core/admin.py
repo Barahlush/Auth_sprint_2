@@ -3,9 +3,8 @@ from flask_admin.form import SecureForm  # type: ignore
 from flask_jwt_extended import get_current_user, jwt_required
 from loguru import logger
 from peewee import CharField, ForeignKeyField, Model
-
-from src.core.models import Role, SocialAccount, User, UserRoles
-from src.db.postgres import db
+from src.v1.core.models import User, Role, UserRoles, SocialAccount
+from src.v1.db.postgres import db
 
 
 class UserInfo(Model):
