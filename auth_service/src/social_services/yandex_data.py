@@ -1,5 +1,5 @@
-from src.v1.core.config import settings
-from src.v1.social_services.base import BaseDataParser, SocialUserModel
+from src.core.config import settings
+from src.social_services.base import BaseDataParser, SocialUserModel
 
 
 class YandexDataParser(BaseDataParser):

@@ -17,8 +17,8 @@ from flask_jwt_extended import (
 from flask_jwt_extended.exceptions import JWTExtendedException
 from loguru import logger
 
-from src.v1.core.models import User
-from src.v1.db.redis import jwt_redis_blocklist
+from src.core.models import User
+from src.db.redis import jwt_redis_blocklist
 
 jwt = JWTManager()
 P = ParamSpec('P')
@@ -68,7 +68,7 @@ def roles_required(
             return cast(
                 Response,
                 redirect(
-                    url_for('views.login', next=request.path),
+                    url_for('auth_views.login', next=request.path),
                 ),
             )
 
@@ -124,7 +124,7 @@ def unauthorized_callback(_msg: str) -> Response:
     return cast(
         Response,
         redirect(
-            url_for('views.login', next=request.path),
+            url_for('auth_views.login', next=request.path),
         ),
     )
 
@@ -142,7 +142,7 @@ def token_verification_failed_callback(_msg: str) -> Response:
     logger.info('TOKEN VERIFICATION FAILED {msg}', msg=_msg)
     logger.info(request.path)
     response = make_response(
-        redirect(url_for('views.login', next=request.path)), 302
+        redirect(url_for('auth_views.login', next=request.path)), 302
     )
     unset_jwt_cookies(response)
     return response
@@ -217,7 +217,7 @@ def revoked_token_callback(
     """
     response = make_response(
         redirect(
-            url_for('views.login', next=request.path),
+            url_for('auth_views.login', next=request.path),
         ),
         302,
     )
@@ -253,7 +253,7 @@ def expired_token_callback(
         return cast(
             Response,
             redirect(
-                url_for('views.login', next=request.path),
+                url_for('auth_views.login', next=request.path),
             ),
         )
     refresh_token = request.cookies.get('refresh_token_cookie')
@@ -261,14 +261,14 @@ def expired_token_callback(
         return cast(
             Response,
             redirect(
-                url_for('views.login', next=request.path),
+                url_for('auth_views.login', next=request.path),
             ),
         )
 
     return cast(
         Response,
         redirect(
-            url_for('views.refresh', next=request.path),
+            url_for('auth_views.refresh', next=request.path),
         ),
     )
 

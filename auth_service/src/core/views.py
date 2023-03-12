@@ -6,101 +6,81 @@ from flask_jwt_extended import get_current_user, verify_jwt_in_request
 from flask_wtf.csrf import generate_csrf  # type: ignore
 from loguru import logger
 
-from src.v1.core.controllers import (
-    HistoryController,
-    IndexController,
-    LoginChangeController,
-    LoginController,
-    LogoutAllController,
-    LogoutController,
-    PasswordChangeController,
-    ProfileController,
-    RefreshController,
-    RegisterController,
-)
-from src.v1.core.jwt import roles_required
-from src.v1.utils.template_utils import navbar_items
+from src.core.controllers import controllers
+from src.core.jwt import roles_required
+from src.utils.template_utils import navbar_items
 
-views = Blueprint('views', __name__, url_prefix='/v1/auth')
+auth_views = Blueprint('auth_views', __name__, url_prefix='/auth')
 
 
 def add_route(
+    blueprint: Blueprint,
     rule: str,
     methods: list[str],
     endpoint: str,
-    *controller_components: Callable[..., Callable[..., Any]]
+    *controller_components: Callable[..., Callable[..., Any]],
 ) -> None:
-    route_processor = controller_components[-1]()
+    route_processor = controller_components[-1]
     for decorator in controller_components[-2::-1]:
         route_processor = decorator(route_processor)
     route_processor.required_methods = methods   # type: ignore
 
     logger.info(f'Add route: {rule}')
-    views.add_url_rule(
+    blueprint.add_url_rule(
         rule,
         endpoint=endpoint,
         view_func=route_processor,
     )
 
 
-add_route('/login', ['GET', 'POST'], 'login', LoginController)
-add_route('/register', ['GET', 'POST'], 'register', RegisterController)
+# Add GET routes to auth_views blueprint
 add_route(
-    '/logout',
-    ['POST'],
-    'logout',
+    auth_views,
+    '/',
+    ['GET'],
+    'index',
     roles_required('user', 'admin'),
-    LogoutController,
+    controllers['index'],
 )
 add_route(
-    '/logout_all',
-    ['POST'],
-    'logout_all',
-    roles_required('user', 'admin'),
-    LogoutAllController,
-)
-add_route(
-    '/refresh',
-    ['POST'],
-    'refresh',
-    roles_required('user', 'admin'),
-    RefreshController,
-)
-
-add_route(
-    '/', ['GET'], 'index', roles_required('user', 'admin'), IndexController
-)
-add_route(
+    auth_views,
     '/profile',
     ['GET'],
     'profile',
     roles_required('user', 'admin'),
-    ProfileController,
+    controllers['profile'],
 )
 add_route(
+    auth_views,
     '/history',
     ['GET'],
     'history',
     roles_required('user', 'admin'),
-    HistoryController,
+    controllers['history'],
 )
 add_route(
+    auth_views,
     '/change_login',
-    ['GET', 'POST'],
+    ['GET'],
     'change_login',
     roles_required('user', 'admin'),
-    LoginChangeController,
+    controllers['change_login'],
 )
 add_route(
+    auth_views,
     '/change_password',
-    ['GET', 'POST'],
+    ['GET'],
     'change_password',
     roles_required('user', 'admin'),
-    PasswordChangeController,
+    controllers['change_password'],
+)
+add_route(auth_views, '/login', ['GET'], 'login', controllers['login'])
+add_route(
+    auth_views, '/register', ['GET'], 'register', controllers['register']
 )
 
 
-@views.context_processor
+@auth_views.context_processor
 def inject_navbar() -> dict[str, list[str]]:
     verify_jwt_in_request(optional=True)
     current_user = get_current_user()
