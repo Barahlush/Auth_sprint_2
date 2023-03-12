@@ -16,6 +16,7 @@ from src.v1.core.config import POSTGRES_CONFIG, settings, REDIS_CONFIG
 from src.v1.core.jwt import jwt
 from src.v1.core.views import views
 from src.v1.core.security import hash_password
+from src.v1.cli.commands import cli_bp
 
 monkey.patch_all()
 patch_psycopg2()
@@ -59,8 +60,8 @@ admin = admin.Admin(
 )
 admin.add_link(MenuLink(name='Back to auth', url='/auth/profile'))
 
+import peeweedbevolve
 if __name__ == '__main__':
-
     # Create the database if it doesn't exist
     conn = psycopg2.connect(
         database='postgres',
@@ -83,6 +84,7 @@ if __name__ == '__main__':
         logger.info('Connected to database {}', POSTGRES_CONFIG.database)
         app.register_blueprint(views)
         app.register_blueprint(not_auth)
+        app.register_blueprint(cli_bp)
         jwt.init_app(app)
         limiter = Limiter(
             get_remote_address,
@@ -122,16 +124,6 @@ if __name__ == '__main__':
             name='user', permissions={'user-read', 'user-write'}
         )
         datastore.find_or_create_role(name='reader', permissions={'user-read'})
-        # Create a user to test with
-        if admin_user := datastore.find_user(email='test@me.com'):
-            datastore.delete_user(admin_user)
-        datastore.create_user(
-            user_id=1,
-            email='test@me.com',
-            password_hash=hash_password('password', 'text'),  # noqa
-            fs_uniquifier='text',
-            roles=['admin'],
-        )
         admin_view = UserAdmin(User, endpoint='users')
         admin.add_view(admin_view)
         admin.add_view(RoleAdmin(Role, endpoint='roles'))

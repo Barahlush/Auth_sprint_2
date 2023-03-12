@@ -51,24 +51,27 @@ poetry run pre-commit install
 ```
 
 #### 4. Механизм миграции Базы данных
-Чтобы увидеть возможности использования peewee-migrate используйте команду
+В контейнере докера auth_service введите команду проверки БД
 ```shell
-pw_migrate --help
+python evolve.py
 ```
-Для создания миграции
-```shell
-pw_migrate create [OPTIONS] NAME
-```
-Для запуска процесса миграции
-```shell
-pw_migrate migrate [OPTIONS]
-```
-Чтобы откатить созданную миграцию
-```shell
-pw_migrate rollback [OPTIONS]
-```
+peewee-db-evolve рассмотрит модели и вашу существующую схему 
+и рассчитает за вас все операторы ALTER TABLE. 
+Нет необходимости вручную записывать миграции как w/arnold или встроенную версию peewee.
 
-Источник: https://github.com/klen/peewee_migrate
+Чтобы peewee-db-evolve игнорировал модель, добавьте 
+```
+evolve = False
+```
+в Meta класс модели.
+
+Источник - https://github.com/keredson/peewee-db-evolve
+
+### 5. Создать пользователя с правами администратора
+
+```bash
+python -m flask create admin example@mail.com password
+```
 </details>
 
 
