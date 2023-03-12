@@ -1,11 +1,11 @@
 import hashlib
 import secrets
 
-from src.core.config import APP_CONFIG, SALT_LENGTH
-from src.core.models import User
+from src.v1.core.config import settings
+from src.v1.core.models import User
 
 
-def generate_salt(length: int = SALT_LENGTH) -> str:
+def generate_salt(length: int = settings.SALT_LENGTH) -> str:
     """Генерирует криптоустойчивую строку заданной длины
 
     Args:
@@ -35,7 +35,7 @@ def hash_password(
     Returns:
         str: Хеш пароля
     """
-    pepper = APP_CONFIG['SECRET_KEY']
+    pepper = settings.APP_CONFIG['SECRET_KEY']
     salt_pepper = f'{salt}{pepper}'.encode()
     digest = hashlib.pbkdf2_hmac(
         hash_name, password.encode(), salt_pepper, iterations

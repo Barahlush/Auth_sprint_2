@@ -2040,24 +2040,18 @@ files = [
 ]
 
 [[package]]
-name = "peewee-migrate"
-version = "1.6.6"
-description = "A simple migration engine for Peewee ORM"
+name = "peewee-db-evolve"
+version = "3.7.6"
+description = "Schema Evolution for Peewee"
 category = "main"
 optional = false
-python-versions = ">=3.7"
+python-versions = "*"
 files = [
-    {file = "peewee-migrate-1.6.6.tar.gz", hash = "sha256:b8c3ab71511a9b7ba1ef91e26dff86e3757996a0789ab3fda421f0c004c9d869"},
-    {file = "peewee_migrate-1.6.6-py3-none-any.whl", hash = "sha256:26cbfd1b1ad11e3bbd114d3f0fe1e91bfd15fec346221d184e22c87d00e6e355"},
+    {file = "peewee-db-evolve-3.7.6.tar.gz", hash = "sha256:b279fc1d317de9f9d204ab85758415bcf1d437515d583d48caaea55346b2271f"},
 ]
 
 [package.dependencies]
-click = ">=6.7"
-peewee = ">=3.3.3"
-
-[package.extras]
-build = ["bump2version", "wheel"]
-tests = ["psycopg2-binary", "pytest", "pytest-mypy"]
+colorama = "*"
 
 [[package]]
 name = "pip"
@@ -3614,4 +3608,4 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "219930f685652a890f2db2d0263df738a3f7dfdccf9e80c29a0bd706a1b879a8"
+content-hash = "76a549ca333c90a4a1df273e508efa352c1fda99a9ee0483ccffc1cd5b4300a7"

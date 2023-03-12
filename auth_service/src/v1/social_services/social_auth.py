@@ -14,16 +14,16 @@ from flask import (
 )
 from flask_restful import Resource, reqparse  # type: ignore
 from loguru import logger
+from src.v1.core.config import settings
 
-from src.core.controllers import BaseController
-from src.core.jwt import create_token_pair, set_token_cookies
-from src.core.models import LoginEvent, SocialAccount, User
-from src.core.security import generate_salt, hash_password
-from src.db.datastore import datastore
-from src.social_services.base import BaseDataParser, SocialUserModel
-from src.social_services.config import USE_NGINX
-from src.social_services.google_data import GoogleDataParser
-from src.social_services.yandex_data import YandexDataParser
+from src.v1.core.controllers import BaseController
+from src.v1.core.jwt import create_token_pair, set_token_cookies
+from src.v1.core.models import LoginEvent, SocialAccount, User
+from src.v1.core.security import generate_salt, hash_password
+from src.v1.db.datastore import datastore
+from src.v1.social_services.base import BaseDataParser, SocialUserModel
+from src.v1.social_services.google_data import GoogleDataParser
+from src.v1.social_services.yandex_data import YandexDataParser
 
 sign_in_parser = reqparse.RequestParser()
 sign_in_parser.add_argument(
@@ -49,7 +49,7 @@ def social_login_factory(oauth: OAuth, name: str) -> type:
                     'message': 'invalid social service'
                 }, HTTPStatus.UNAUTHORIZED
 
-            if USE_NGINX:
+            if settings.USE_NGINX:
                 scheme = 'https'
             else:
                 scheme = 'http'

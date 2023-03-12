@@ -8,8 +8,7 @@ from opentelemetry.sdk.trace.export import (
     BatchSpanProcessor,
     ConsoleSpanExporter,
 )
-
-from src.core.config import DEBUG, JAEGER_HOST, JAEGER_PORT
+from src.v1.core.config import settings
 
 
 def configure_tracer() -> None:
@@ -20,12 +19,12 @@ def configure_tracer() -> None:
     trace.get_tracer_provider().add_span_processor(
         BatchSpanProcessor(
             JaegerExporter(
-                agent_host_name=JAEGER_HOST,
-                agent_port=JAEGER_PORT,
+                agent_host_name=settings.JAEGER_HOST,
+                agent_port=settings.JAEGER_PORT,
             )
         )
     )
-    if DEBUG:
+    if settings.DEBUG:
         trace.get_tracer_provider().add_span_processor(
             BatchSpanProcessor(ConsoleSpanExporter())
         )

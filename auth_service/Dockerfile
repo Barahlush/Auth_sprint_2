@@ -25,4 +25,4 @@ RUN pip install \
 
 RUN rm -rf /root/wheels
 
-CMD ["python", "main.py"]
+CMD ["python", "app.py"]
