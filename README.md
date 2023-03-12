@@ -67,6 +67,11 @@ evolve = False
 
 Источник - https://github.com/keredson/peewee-db-evolve
 
+### 5. Создать пользователя с правами администратора
+
+```bash
+python -m flask create admin example@mail.com password
+```
 </details>
 
 
