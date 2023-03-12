@@ -2,7 +2,7 @@ from abc import abstractmethod
 from datetime import datetime
 
 import redis
-from src.v1.core.config import settings, REDIS_CONFIG
+from src.core.config import settings, REDIS_CONFIG
 
 
 class TokenBlocklist:

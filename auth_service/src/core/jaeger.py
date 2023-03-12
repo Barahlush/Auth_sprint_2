@@ -8,13 +8,14 @@ from opentelemetry.sdk.trace.export import (
     BatchSpanProcessor,
     ConsoleSpanExporter,
 )
-from src.v1.core.config import settings
+from src.core.config import settings
 
 
 def configure_tracer() -> None:
     trace.set_tracer_provider(
         TracerProvider(
-            resource=Resource.create({SERVICE_NAME: "Auth-service"}),)
+            resource=Resource.create({SERVICE_NAME: "Auth-service"}),
+        )
     )
     trace.get_tracer_provider().add_span_processor(
         BatchSpanProcessor(

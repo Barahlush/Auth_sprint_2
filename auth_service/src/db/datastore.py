@@ -5,12 +5,12 @@ from typing import Any, Generic, TypeVar
 from loguru import logger
 from peewee import Model
 
-from src.v1.core.models import LoginEvent as PeeweeLoginEvent
-from src.v1.core.models import Role as PeeweeRole
-from src.v1.core.models import SocialAccount
-from src.v1.core.models import User as PeeweeUser
-from src.v1.core.models import UserRoles as PeeweeUserRoles
-from src.v1.db.postgres import db
+from src.core.models import LoginEvent as PeeweeLoginEvent
+from src.core.models import Role as PeeweeRole
+from src.core.models import SocialAccount
+from src.core.models import User as PeeweeUser
+from src.core.models import UserRoles as PeeweeUserRoles
+from src.db.postgres import db
 
 Role = TypeVar('Role')
 User = TypeVar('User')
@@ -94,6 +94,10 @@ class UserDatastore(Generic[User, Role, LoginEvent]):
         raise NotImplementedError
 
     @abstractmethod
+    def delete_social_account(self, user: SocialAccount) -> bool:
+        raise NotImplementedError
+
+    @abstractmethod
     def delete_history(self, user: LoginEvent) -> bool:
         raise NotImplementedError
 
@@ -162,7 +166,14 @@ class PeeweeUserDatastore(
         """Deletes the specified user.
         :param user: The user to delete
         """
+        SocialAccount.delete().where(SocialAccount.user == user)
         self.delete(user)
+
+    def delete_social_account(self, social_account) -> None:
+        """Deletes social_account.
+        :param social_account: The user to delete
+        """
+        self.delete(social_account)
 
     def create_role(self, **kwargs: Any) -> 'Role':
         """
@@ -195,7 +206,7 @@ class PeeweeUserDatastore(
         self.delete(role)
 
     def delete_history(self, history) -> None:
-        """Deletes the specified role.
+        """Deletes history.
         :param history: The history to delete
         """
         self.delete(history)

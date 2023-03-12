@@ -1,8 +1,8 @@
 import hashlib
 import secrets
 
-from src.v1.core.config import settings
-from src.v1.core.models import User
+from src.core.config import settings
+from src.core.models import User
 
 
 def generate_salt(length: int = settings.SALT_LENGTH) -> str:

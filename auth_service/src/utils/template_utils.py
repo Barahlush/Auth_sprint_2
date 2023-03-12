@@ -48,30 +48,30 @@ class NavbarLink:
 
 
 navbar_items = [
-    NavbarLink(href='views.login', text='Log in', roles=['anon']),
+    NavbarLink(href='auth_views.login', text='Log in', roles=['anon']),
     NavbarLink(
         is_form=True,
-        href='views.logout',
+        href='auth_api.logout',
         text='Log out',
         roles=['user', 'admin'],
     ),
     NavbarLink(
         is_form=True,
-        href='views.logout_all',
+        href='auth_api.logout_all',
         text='Log out all',
         roles=['user', 'admin'],
     ),
     NavbarLink(
-        href='views.profile',
+        href='auth_views.profile',
         text='Profile',
         roles=['user', 'admin'],
     ),
     NavbarLink(href='users.index_view', text='Admin', roles=['admin']),
-    NavbarLink(href='views.register', text='Register', roles=['anon']),
+    NavbarLink(href='auth_views.register', text='Register', roles=['anon']),
     NavbarLink(
-        href='views.history',
+        href='auth_views.history',
         text='History',
         roles=['user', 'admin'],
     ),
-    NavbarLink(href='views.index', text='Home', roles=['user', 'admin']),
+    NavbarLink(href='auth_views.index', text='Home', roles=['user', 'admin']),
 ]

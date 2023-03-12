@@ -1,18 +1,12 @@
-from enum import Enum
-
 from authlib.integrations.flask_client import OAuth  # type: ignore
-from src.v1.core.config import settings
 
-from src.v1.core.views import add_route
-from src.v1.social_services.social_auth import (
+from src.core.config import settings
+from src.core.views import add_route, auth_views
+from src.social_services.social_auth import (
+    Services,
     social_auth_factory,
     social_login_factory,
 )
-
-
-class Services(Enum):
-    GOOGLE = 'google'
-    YANDEX = 'yandex'
 
 
 def google_register(oauth: OAuth) -> None:
@@ -54,19 +48,31 @@ def create_oauth_services(oauth: OAuth) -> None:
     google_register(oauth)
     yandex_register(oauth)
     add_route(
-        '/google', ['GET'], 'google', social_login_factory(oauth, 'google')
+        auth_views,
+        '/google',
+        ['GET'],
+        'google',
+        social_login_factory(oauth, Services.GOOGLE.value)(),
     )
     add_route(
+        auth_views,
         '/google/auth',
         ['GET'],
-        'social_',
-        social_auth_factory(oauth, 'google'),
+        'social_google',
+        social_auth_factory(oauth, Services.GOOGLE.value)(),
     )
 
     add_route(
-        '/yandex', ['GET'], 'yandex', social_login_factory(oauth, 'yandex')
+        auth_views,
+        '/yandex',
+        ['GET'],
+        'yandex',
+        social_login_factory(oauth, Services.YANDEX.value)(),
     )
     add_route(
-        '/yandex/auth', ['GET'], 'social', social_auth_factory(oauth, 'yandex')
+        auth_views,
+        '/yandex/auth',
+        ['GET'],
+        'social_yandex',
+        social_auth_factory(oauth, Services.YANDEX.value)(),
     )
-
