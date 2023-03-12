@@ -12,8 +12,8 @@ from authlib.integrations.flask_client import OAuth
 from flasgger import Swagger
 from flask import Flask
 from flask_admin.menu import MenuLink  # type: ignore
-from flask_limiter import Limiter
-from flask_limiter.util import get_remote_address
+from flask_limiter import Limiter   # type: ignore
+from flask_limiter.util import get_remote_address   # type: ignore
 from flask_wtf.csrf import CSRFProtect  # type: ignore
 from loguru import logger
 from psycopg2.errors import DuplicateDatabase
@@ -46,11 +46,6 @@ csrf = CSRFProtect(app)
 oauth = OAuth(app)
 oauth.init_app(app)
 create_oauth_services(oauth)
-
-
-@app.get('/')
-def index(request):
-    return "HI MAN"
 
 
 admin = admin.Admin(
