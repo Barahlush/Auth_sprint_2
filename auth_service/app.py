@@ -18,6 +18,7 @@ from flask_wtf.csrf import CSRFProtect  # type: ignore
 from loguru import logger
 from psycopg2.errors import DuplicateDatabase
 from src.api.v1.api import auth_api
+from src.cli.commands import cli_bp
 from src.core.admin import (
     RoleAdmin,
     RoleInfo,
@@ -28,7 +29,6 @@ from src.core.admin import (
     UserRolesAdmin,
     UserRolesInfo,
 )
-from src.v1.cli.commands import cli_bp
 from src.core.config import POSTGRES_CONFIG, REDIS_CONFIG, settings
 from src.core.jaeger import tracer_init
 from src.core.jwt import jwt
