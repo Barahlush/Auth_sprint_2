@@ -5,12 +5,12 @@ from typing import Any, Generic, TypeVar
 from loguru import logger
 from peewee import Model
 
-from src.v1.core.models import LoginEvent as PeeweeLoginEvent
-from src.v1.core.models import Role as PeeweeRole
-from src.v1.core.models import SocialAccount
-from src.v1.core.models import User as PeeweeUser
-from src.v1.core.models import UserRoles as PeeweeUserRoles
-from src.v1.db.postgres import db
+from src.core.models import LoginEvent as PeeweeLoginEvent
+from src.core.models import Role as PeeweeRole
+from src.core.models import SocialAccount
+from src.core.models import User as PeeweeUser
+from src.core.models import UserRoles as PeeweeUserRoles
+from src.db.postgres import db
 
 Role = TypeVar('Role')
 User = TypeVar('User')

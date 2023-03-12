@@ -1,49 +1,43 @@
-from gevent import monkey
-from src.v1.db.postgres import patch_psycopg2
+from gevent import monkey  # type: ignore
+from src.db.postgres import patch_psycopg2
 
 monkey.patch_all()
-patch_psycopg2()
-
-from flasgger import Swagger
-from flask_limiter import Limiter
-from flask_limiter.util import get_remote_address
-
-from src.v1.core.jaeger import tracer_init
-from src.v1.core.models import User, Role, UserRoles, LoginEvent, SocialAccount
-
-from src.v1.social_services.oauth_services import create_oauth_services
-from src.v1.core.config import POSTGRES_CONFIG, settings, REDIS_CONFIG
-from src.v1.core.jwt import jwt
-from src.v1.core.views import views
-from src.v1.core.security import hash_password
-
-monkey.patch_all()
-patch_psycopg2()
-
-from authlib.integrations.flask_client import OAuth
+patch_psycopg2()   # type: ignore
 
 from contextlib import closing
 
 import flask_admin as admin  # type: ignore
 import psycopg2
+from authlib.integrations.flask_client import OAuth
+from flasgger import Swagger
 from flask import Flask
 from flask_admin.menu import MenuLink  # type: ignore
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 from flask_wtf.csrf import CSRFProtect  # type: ignore
 from loguru import logger
 from psycopg2.errors import DuplicateDatabase
-from src.v1.core.routers import not_auth
-from src.v1.core.admin import (
+from src.api.v1.api import auth_api
+from src.core.admin import (
     RoleAdmin,
     RoleInfo,
-    UserRolesInfo,
     SocialAccountAdmin,
     SocialAccountInfo,
     UserAdmin,
     UserInfo,
     UserRolesAdmin,
+    UserRolesInfo,
 )
-from src.v1.db.datastore import datastore
-from src.v1.db.postgres import db
+from src.core.config import POSTGRES_CONFIG, REDIS_CONFIG, settings
+from src.core.jaeger import tracer_init
+from src.core.jwt import jwt
+from src.core.models import LoginEvent, Role, SocialAccount, User, UserRoles
+from src.core.routers import not_auth
+from src.core.security import hash_password
+from src.core.views import auth_views
+from src.db.datastore import datastore
+from src.db.postgres import db
+from src.social_services.oauth_services import create_oauth_services
 
 # Create app
 app = Flask(__name__)
@@ -52,6 +46,11 @@ csrf = CSRFProtect(app)
 oauth = OAuth(app)
 oauth.init_app(app)
 create_oauth_services(oauth)
+
+
+@app.get('/')
+def index(request):
+    return "HI MAN"
 
 
 admin = admin.Admin(
@@ -81,14 +80,15 @@ if __name__ == '__main__':
         swagger = Swagger(app, template_file='schema/swagger.json')
         db.init(**dict(POSTGRES_CONFIG))
         logger.info('Connected to database {}', POSTGRES_CONFIG.database)
-        app.register_blueprint(views)
+        app.register_blueprint(auth_api)
+        app.register_blueprint(auth_views)
         app.register_blueprint(not_auth)
         jwt.init_app(app)
         limiter = Limiter(
             get_remote_address,
             app=app,
             default_limits=[settings.DAYS_LIMIT, settings.HOURS_LIMIT],
-            storage_uri=f'redis://{REDIS_CONFIG.host}:{REDIS_CONFIG.port}'
+            storage_uri=f'redis://{REDIS_CONFIG.host}:{REDIS_CONFIG.port}',
         )
 
         db.create_tables(
@@ -122,16 +122,6 @@ if __name__ == '__main__':
             name='user', permissions={'user-read', 'user-write'}
         )
         datastore.find_or_create_role(name='reader', permissions={'user-read'})
-        # Create a user to test with
-        if admin_user := datastore.find_user(email='test@me.com'):
-            datastore.delete_user(admin_user)
-        datastore.create_user(
-            user_id=1,
-            email='test@me.com',
-            password_hash=hash_password('password', 'text'),  # noqa
-            fs_uniquifier='text',
-            roles=['admin'],
-        )
         admin_view = UserAdmin(User, endpoint='users')
         admin.add_view(admin_view)
         admin.add_view(RoleAdmin(Role, endpoint='roles'))

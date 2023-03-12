@@ -1,4 +1,4 @@
-from src.v1.social_services.base import BaseDataParser, SocialUserModel
+from src.social_services.base import BaseDataParser, SocialUserModel
 
 
 class GoogleDataParser(BaseDataParser):

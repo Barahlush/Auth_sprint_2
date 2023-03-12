@@ -9,7 +9,7 @@ services:
       - .env-auth
       - .docker.env
     volumes:
-      - ./postgres_data:/var/lib/postgresql/data/
+      - ./postgres_data:/var/lib/postgresql/data/:rw
     expose:
       - "5432"
 
