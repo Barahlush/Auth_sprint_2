@@ -24,17 +24,17 @@
                             <h2 class="subtitle">
                                 <a style="font-size: 30px;
                                           color: gray"
-                                   href="{{ url_for('views.logout') }}">{{ _fsdomain('Sign out') }}</a>
+                                   href="{{ url_for('auth_views.logout') }}">{{ _fsdomain('Sign out') }}</a>
                             </h2>
                         {% else %}
                             <h2 class="subtitle">
                                 Please, <a style="font-size: 30px;
            color: gray"
-    href="{{ url_for('views.login') }}{% if 'next' in request.args %}?next={{ request.args.next|urlencode }}{% endif %}">{{ _fsdomain('Login') }}</a>
+    href="{{ url_for('auth_views.login') }}{% if 'next' in request.args %}?next={{ request.args.next|urlencode }}{% endif %}">{{ _fsdomain('Login') }}</a>
                                 <br>
                                 or <a style="font-size: 30px;
            color: darkred"
-    href="{{ url_for('views.register') }}{% if 'next' in request.args %}?next={{ request.args.next|urlencode }}{% endif %}">{{ _fsdomain('Register') }}</a>
+    href="{{ url_for('auth_views.register') }}{% if 'next' in request.args %}?next={{ request.args.next|urlencode }}{% endif %}">{{ _fsdomain('Register') }}</a>
                             </h2>
                         {% endif %}
                     {% endif %}

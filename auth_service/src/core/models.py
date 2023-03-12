@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Any
 
-import architect
+import architect  # type: ignore
 from peewee import (
     BooleanField,
     CharField,
@@ -11,7 +11,7 @@ from peewee import (
     TextField,
 )
 
-from src.v1.db.postgres import db
+from src.db.postgres import db
 
 
 class Role(Model):
@@ -75,7 +75,7 @@ class SocialAccount(Model):
     social_id = TextField(null=False)
     social_name = TextField(null=False)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f'<SocialAccount {self.social_name}>'
 
     class Meta:

@@ -1,4 +1,3 @@
-from abc import abstractmethod
 from typing import cast
 
 from flask import (
@@ -13,25 +12,23 @@ from flask import (
 from flask_jwt_extended import get_current_user, unset_jwt_cookies
 from flask_peewee.utils import object_list  # type: ignore
 
-from src.v1.core.jwt import (
+from src.core.jwt import (
     create_token_pair,
     revoke_all_user_tokens,
     revoke_token,
     set_token_cookies,
 )
-from src.v1.core.security import generate_salt, hash_password, check_password
-from src.v1.db.datastore import datastore
-from src.v1.core.models import LoginEvent, User
+from src.core.models import LoginEvent, User
+from src.core.security import check_password, generate_salt, hash_password
+from src.db.datastore import datastore
 
 
 class BaseController:
-    @abstractmethod
     def get(self, request: Request) -> Response:
-        pass
+        raise NotImplementedError()
 
-    @abstractmethod
     def post(self, request: Request) -> Response:
-        pass
+        raise NotImplementedError()
 
     def __call__(self) -> Response:
         if request.method == 'GET':
@@ -44,16 +41,16 @@ class BaseController:
 
 
 class LoginController(BaseController):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.__qualname__ = self.__class__.__name__
 
     def get(self, request: Request) -> Response:
-        next_url = request.args.get('next', url_for('views.index'))
+        next_url = request.args.get('next', url_for('auth_views.index'))
         return make_response(
             render_template(
                 'security/login_user.html',
-                next_url=url_for('views.login', next=next_url),
+                next_url=url_for('auth_api.login', next=next_url),
             ),
             200,
         )
@@ -106,7 +103,7 @@ class LoginController(BaseController):
         )
         user_history.save()
 
-        next_url = request.args.get('next', url_for('views.index'))
+        next_url = request.args.get('next', url_for('auth_views.index'))
         response = cast(Response, redirect(next_url))
 
         access_token, refresh_token = create_token_pair(user)
@@ -126,7 +123,7 @@ class BaseChangeController(BaseController):
     template: str
     view_name: str
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.__qualname__ = self.__class__.__name__
 
@@ -167,7 +164,7 @@ class BaseChangeController(BaseController):
         user = get_current_user()
         self.set_changed_data(user, new_data)
 
-        next_url = request.args.get('next', url_for('views.index'))
+        next_url = request.args.get('next', url_for('auth_views.index'))
         return make_response(redirect(next_url), 302)
 
 
@@ -175,9 +172,9 @@ class LoginChangeController(BaseChangeController):
     request_field_name = 'new_name'
     model_field_name = 'email'
     template = 'security/change_login.html'
-    view_name = 'views.change_login'
+    view_name = 'auth_views.change_login'
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.__qualname__ = self.__class__.__name__
 
@@ -186,9 +183,9 @@ class PasswordChangeController(BaseChangeController):
     request_field_name = 'new_password'
     model_field_name = 'password'
     template = 'security/change_password.html'
-    view_name = 'views.change_password'
+    view_name = 'auth_views.change_password'
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.__qualname__ = self.__class__.__name__
 
@@ -208,12 +205,12 @@ class PasswordChangeController(BaseChangeController):
 
 
 class LogoutController(BaseController):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.__qualname__ = self.__class__.__name__
 
     def post(self, request: Request) -> Response:
-        response = make_response(redirect(url_for('views.login')), 302)
+        response = make_response(redirect(url_for('auth_views.login')), 302)
 
         # Отзыв access токена
         if access_token := request.cookies.get('access_token_cookie'):
@@ -228,12 +225,12 @@ class LogoutController(BaseController):
 
 
 class LogoutAllController(BaseController):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.__qualname__ = self.__class__.__name__
 
     def post(self, _request: Request) -> Response:
-        response = make_response(redirect(url_for('views.login')), 302)
+        response = make_response(redirect(url_for('auth_views.login')), 302)
 
         user = get_current_user()
         revoke_all_user_tokens(user)
@@ -242,7 +239,7 @@ class LogoutAllController(BaseController):
 
 
 class RegisterController(BaseController):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.__qualname__ = self.__class__.__name__
 
@@ -297,15 +294,15 @@ class RegisterController(BaseController):
             fs_uniquifier=salt,
             roles=['user'],
         )
-        next_url = request.args.get('next', url_for('views.index'))
+        next_url = request.args.get('next', url_for('auth_views.index'))
         return make_response(
-            redirect(url_for('views.login', next=next_url)),
+            redirect(url_for('auth_views.login', next=next_url)),
             302,
         )
 
 
 class HistoryController(BaseController):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.__qualname__ = self.__class__.__name__
 
@@ -326,7 +323,7 @@ class HistoryController(BaseController):
 
 
 class IndexController(BaseController):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.__qualname__ = self.__class__.__name__
 
@@ -351,7 +348,7 @@ class IndexController(BaseController):
 
 
 class ProfileController(BaseController):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.__qualname__ = self.__class__.__name__
 
@@ -364,13 +361,13 @@ class ProfileController(BaseController):
 
 
 class RefreshController(BaseController):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.__qualname__ = self.__class__.__name__
 
     def get(self, request: Request) -> Response:
         current_user = get_current_user()
-        next_url = request.args.get('next', url_for('views.index'))
+        next_url = request.args.get('next', url_for('auth_views.index'))
         response = cast(Response, redirect(next_url, 302))
 
         if refresh_token := request.cookies.get('refresh_token_cookie'):
@@ -379,3 +376,18 @@ class RefreshController(BaseController):
         access_token, refresh_token = create_token_pair(current_user)
         set_token_cookies(response, access_token, refresh_token)
         return response
+
+
+# Controllers dictionary
+controllers = {
+    'login': LoginController(),
+    'register': RegisterController(),
+    'index': IndexController(),
+    'profile': ProfileController(),
+    'history': HistoryController(),
+    'change_login': LoginChangeController(),
+    'change_password': PasswordChangeController(),
+    'logout': LogoutController(),
+    'logout_all': LogoutAllController(),
+    'refresh': RefreshController(),
+}

@@ -1,3 +1,4 @@
+from enum import Enum, unique
 from http import HTTPStatus
 from typing import Any, cast
 
@@ -5,25 +6,26 @@ from authlib.integrations.flask_client import (  # type: ignore
     FlaskRemoteApp,
     OAuth,
 )
-from flask import (
-    Request,
-    Response,
-    redirect,
-    request,
-    url_for,
-)
+from flask import Request, Response, make_response, redirect, request, url_for
 from flask_restful import Resource, reqparse  # type: ignore
 from loguru import logger
-from src.v1.core.config import settings
 
-from src.v1.core.controllers import BaseController
-from src.v1.core.jwt import create_token_pair, set_token_cookies
-from src.v1.core.models import LoginEvent, SocialAccount, User
-from src.v1.core.security import generate_salt, hash_password
-from src.v1.db.datastore import datastore
-from src.v1.social_services.base import BaseDataParser, SocialUserModel
-from src.v1.social_services.google_data import GoogleDataParser
-from src.v1.social_services.yandex_data import YandexDataParser
+from src.core.config import settings
+from src.core.controllers import BaseController
+from src.core.jwt import create_token_pair, set_token_cookies
+from src.core.models import LoginEvent, SocialAccount, User
+from src.core.security import generate_salt, hash_password
+from src.db.datastore import datastore
+from src.social_services.base import BaseDataParser, SocialUserModel
+from src.social_services.google_data import GoogleDataParser
+from src.social_services.yandex_data import YandexDataParser
+
+
+@unique
+class Services(Enum):
+    GOOGLE = 'google'
+    YANDEX = 'yandex'
+
 
 sign_in_parser = reqparse.RequestParser()
 sign_in_parser.add_argument(
@@ -32,38 +34,40 @@ sign_in_parser.add_argument(
 
 
 def social_login_factory(oauth: OAuth, name: str) -> type:
-    class SocialLogin(Resource, BaseController): # type: ignore
+    class SocialLogin(Resource, BaseController):   # type: ignore
         """
         Класс логина в соц сети, на вход принимает имя соцсети.
         В случае успеха - переход на класс авторизации через соцсеть.
         """
 
-        def __init__(self):
+        def __init__(self) -> None:
             super().__init__()
             self.__qualname__ = self.__class__.__name__
 
         def get(self, _request: Request) -> Response:
             client = oauth.create_client(name)
             if not client:
-                return {
-                    'message': 'invalid social service'
-                }, HTTPStatus.UNAUTHORIZED
+                return make_response(
+                    {'message': 'invalid social service'},
+                    HTTPStatus.UNAUTHORIZED,
+                )
 
             if settings.USE_NGINX:
                 scheme = 'https'
             else:
                 scheme = 'http'
-            if name == 'google':
-                endpoint = 'views.social_'
+            if name == Services.GOOGLE.value:
+                endpoint = 'auth_views.social_google'
             else:
-                endpoint = 'views.social'
+                endpoint = 'auth_views.social_yandex'
             redirect_uri = url_for(
                 endpoint=endpoint,
                 social_name=name,
                 _external=True,
                 _scheme=scheme,
             )
-            return client.authorize_redirect(redirect_uri)
+            return make_response(client.authorize_redirect(redirect_uri), 302)
+
     return SocialLogin
 
 
@@ -77,7 +81,8 @@ def social_auth_factory(oauth: OAuth, name: str) -> type:
 
         В самом конце логируем заход пользователя с access и refresh jwt
         """
-        def __init__(self):
+
+        def __init__(self) -> None:
             super().__init__()
             self.__qualname__ = self.__class__.__name__
 
@@ -86,9 +91,10 @@ def social_auth_factory(oauth: OAuth, name: str) -> type:
             client: FlaskRemoteApp = oauth.create_client(name)
 
             if not client:
-                return {
-                    'message': 'invalid social service'
-                }, HTTPStatus.UNAUTHORIZED
+                return make_response(
+                    {'message': 'invalid social service'},
+                    HTTPStatus.UNAUTHORIZED,
+                )
 
             token = client.authorize_access_token()
             user_data_parser = self.get_user_data_parser(client.name)
@@ -107,7 +113,7 @@ def social_auth_factory(oauth: OAuth, name: str) -> type:
             )
             user_history.save()
 
-            response = cast(Response, redirect(url_for('views.index')))
+            response = cast(Response, redirect(url_for('auth_views.index')))
 
             access_token, refresh_token = create_token_pair(user)
 
@@ -127,7 +133,7 @@ def social_auth_factory(oauth: OAuth, name: str) -> type:
             Если social_account не создан - он создается.
             """
             logger.info('user_data.open_id: {}', user_data.open_id)
-            user = User.get_or_none(email=user_data.email)
+            user = User.get_or_none(email=user_data.email)   # type: ignore
 
             if user is None:
                 user = datastore.create_user(
@@ -137,15 +143,15 @@ def social_auth_factory(oauth: OAuth, name: str) -> type:
                     roles=['user'],
                 )
 
-            if account := SocialAccount.get_or_none(
-                    SocialAccount.social_id == user_data.open_id
+            if account := SocialAccount.get_or_none(  # type: ignore
+                SocialAccount.social_id == user_data.open_id
             ):
                 logger.info('find_account: {}', account)
             else:
                 account = SocialAccount(
                     social_id=user_data.open_id,
                     social_name=social_name,
-                    user=user
+                    user=user,
                 )
                 account.save()
                 logger.info('create account: {}', account)
@@ -153,11 +159,12 @@ def social_auth_factory(oauth: OAuth, name: str) -> type:
             return user
 
         def get_user_data_parser(
-                self, client_name: str
+            self, client_name: str
         ) -> type[BaseDataParser]:
             """
             Метод возвращает класс для парсинга данных полученных от сервиса
             """
             parsers = {'yandex': YandexDataParser, 'google': GoogleDataParser}
             return parsers[client_name]
+
     return CallBack
