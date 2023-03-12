@@ -2,7 +2,7 @@ from flask import Blueprint, render_template
 from flask_jwt_extended import get_current_user, jwt_required
 from loguru import logger
 
-not_auth = Blueprint('not_auth', __name__, url_prefix='/v1')
+not_auth = Blueprint('not_auth', __name__)
 
 
 @not_auth.route('/')
