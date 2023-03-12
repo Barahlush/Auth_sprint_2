@@ -2,8 +2,8 @@ import click
 from flask import Blueprint
 from loguru import logger
 
-from src.v1.db.datastore import datastore
-from src.v1.core.security import hash_password
+from src.core.security import hash_password
+from src.db.datastore import datastore
 
 cli_bp = Blueprint('create', __name__)
 
