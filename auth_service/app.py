@@ -60,8 +60,8 @@ admin = admin.Admin(
 )
 admin.add_link(MenuLink(name='Back to auth', url='/auth/profile'))
 
+import peeweedbevolve
 if __name__ == '__main__':
-
     # Create the database if it doesn't exist
     conn = psycopg2.connect(
         database='postgres',
